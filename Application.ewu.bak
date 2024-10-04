@@ -1,0 +1,1059 @@
+﻿$version 11.00
+
+// This is the root component of the entire GUI application.
+$rect <20,20,220,60>
+$output false
+class Application : Core::Root
+{
+  $rect <910,70,1090,110>
+  inherited method Init()
+  {
+    PresentDialog(new Application::MainView, null, null, null, null, null, null, null, null, false);
+  }
+
+  $rect <909,20,1109,60>
+  inherited property Bounds = <0,0,800,450>;
+
+  // To do:
+  // 
+  // - Adjust the visible size of your application (the thick blue border). It should \
+  // correspond to the size of your target display.
+  // 
+  // - The simplest way to compose the appearance of the application is to use the \
+  // 'Views' and 'Widgets' from the Gallery.
+  // 
+  // - To react to touch or keyboard events use the templates from the Gallery folder \
+  // 'Event Handlers'.
+  // 
+  // - To perform transitions (animations) use the templates from the Gallery folder \
+  // 'Effects'.
+  // 
+  // - To store values use the 'Variable', 'Array' and 'Property' templates available \
+  // in the Gallery folder 'Chora'.
+  // 
+  // - To implement behavior use the 'Method' and 'Slot Method' templates available \
+  // in the Gallery folder 'Chora'.
+  note legend Note1
+  {
+    attr Bounds = <9,540,789,770>;
+  }
+}
+
+$rect <20,210,260,250>
+$output false
+autoobject WidgetSet::PushButtonConfig PushButtonConfig
+{
+  preset LabelColorActive = #FFFFFFFF;
+  preset LabelColorFocused = #FFFFFFFF;
+  preset LabelColorDisabled = #FFFFFFFF;
+  preset LabelColorDefault = #FFFFFFFF;
+  preset LabelFont = Application::MyFont2;
+}
+
+$rect <390,210,590,250>
+$output false
+resource Resources::Bitmap BtnCircle
+{
+  attr bitmapfile FileName = .\Res\BtnCircle (3).png;
+  attr bitmapformat Format = Native;
+  attr framesize FrameSize;
+  attr framedelay FrameDelay;
+  attr bitmapdithering Dithering = Auto;
+  attr bitmapmode Mode = Default;
+}
+
+$rect <390,290,590,330>
+$output false
+resource Resources::Bitmap BtnCapsule
+{
+  attr bitmapfile FileName = .\Res\btn1 (1).png;
+  attr bitmapformat Format = Native;
+  attr framesize FrameSize;
+  attr framedelay FrameDelay;
+  attr bitmapdithering Dithering = Auto;
+  attr bitmapmode Mode = Default;
+}
+
+$rect <20,60,220,100>
+$output false
+class MainView : Core::Group
+{
+  $rect <40,500,240,540>
+  inherited property Bounds = <0,0,800,450>;
+
+  $rect <260,500,460,540>
+  slot EnterQuickMenu
+  {
+    if(Owner != null)
+      Owner.SwitchToDialog( new Application::QuickMenu, Effects::SlideDownCentered, null, null, null, null, null, null, null, null, false );
+  }
+
+  $rect <20,20,160,60>
+  object Views::Rectangle SDBackground
+  {
+    preset Bounds = <39,38,119,88>;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Text RemainingMemory
+  {
+    preset Bounds = <137,48,237,78>;
+    preset Padding = 0;
+    preset String = "3h 20m";
+    preset Font = Resources::FontLarge;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Border Battery
+  {
+    preset Bounds = <655,43,755,93>;
+    preset Width = 4;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Text SD
+  {
+    preset Bounds = <39,44,119,83>;
+    preset String = "SD";
+    preset Font = Resources::FontLarge;
+    preset Color = #000000FF;
+  }
+
+  $rect <40,540,240,580>
+  slot ElementVisiable
+  {
+    SD.Visible=!SD.Visible;
+    SDBackground.Visible=!SDBackground.Visible;
+    Battery.Visible=!Battery.Visible;
+    FOV.Visible=!FOV.Visible;
+    Zoom.Visible=!Zoom.Visible;
+    Setting.Visible=!Setting.Visible;
+    RemainingMemory.Visible=!RemainingMemory.Visible;
+  }
+
+  $rect <260,540,460,580>
+  slot EnterAlbum
+  {
+    if(Owner != null)
+      Owner.SwitchToDialog( new Application::AlbumView, Effects::SlideRightCentered, null, null, null, null, null, null, null, null, false );
+  }
+
+  $rect <470,500,670,540>
+  slot EnterSetSpec
+  {
+    if(Owner != null)
+      Owner.SwitchToDialog( new Application::SettingSpec, Effects::SlideUpCentered, null, null, null, null, null, null, null, null, false );
+  }
+
+  $rect <470,540,670,580>
+  slot EnterSetParam
+  {
+    if(Owner != null)
+      Owner.SwitchToDialog( new Application::SettingParameter, Effects::SlideLeftCentered, null, null, null, null, null, null, null, null, false );
+  }
+
+  $rect <20,20,160,60>
+  object Core::WipeTouchHandler WipeTouchHandler
+  {
+    preset Bounds = <0,0,800,450>;
+    preset OnBottom = EnterQuickMenu;
+    preset OnRight = EnterAlbum;
+    preset OnTop = EnterSetSpec;
+    preset OnLeft = EnterSetParam;
+    preset RetargetCondition = Core::RetargetReason[];
+  }
+
+  $rect <20,20,160,60>
+  object Core::SlideTouchHandler SlideTouchHandler
+  {
+    preset Bounds = <124,125,676,326>;
+    preset OnSlide = SelectMode;
+    preset RetargetCondition = Core::RetargetReason[ForeignPress, LongPress];
+  }
+
+  $rect <680,500,880,540>
+  slot SelectMode
+  {
+    if(Owner != null)
+      Owner.SwitchToDialog( new Application::SwitchMode, null, null, null, null, null, null, null, null, null, false );
+  }
+
+  $rect <20,20,160,60>
+  object Core::SimpleTouchHandler ScreenTouchHandler
+  {
+    preset Point4 = <0,0>;
+    preset Point3 = <800,0>;
+    preset Point2 = <800,450>;
+    preset Point1 = <0,450>;
+    preset OnLeave = ElementVisiable;
+    preset OnPress = null;
+    preset RetargetCondition = Core::RetargetReason[WipeDown, WipeLeft, WipeRight, WipeUp];
+  }
+
+  $rect <20,20,160,60>
+  object WidgetSet::PushButton Zoom
+  {
+    preset Bounds = <27,329,132,429>;
+    preset Enabled = true;
+    preset Icon = Application::BtnCircle;
+    preset Label = "1x";
+    preset Appearance = Application::PushButtonConfig;
+  }
+
+  $rect <20,20,160,60>
+  object WidgetSet::PushButton Setting
+  {
+    preset Bounds = <237,329,564,429>;
+    preset OnPress = EnterSetSpec;
+    preset Icon = Application::BtnCapsule;
+    preset Label = "Caption";
+    preset Appearance;
+  }
+
+  $rect <20,20,160,60>
+  object WidgetSet::PushButton FOV
+  {
+    preset Bounds = <671,329,777,429>;
+    preset Icon = Application::BtnCircle;
+    preset Label = "광각";
+    preset Appearance = Application::PushButtonConfig;
+  }
+}
+
+$rect <220,20,420,60>
+$output false
+class QuickMenu : Core::Group
+{
+  $rect <20,20,160,60>
+  object Core::WipeTouchHandler WipeTouchHandler
+  {
+    preset Bounds = <0,0,800,450>;
+    preset OnTop = EnterMainView;
+  }
+
+  $rect <0,520,200,560>
+  inherited property Bounds = <0,0,800,450>;
+
+  $rect <240,520,440,560>
+  slot EnterMainView
+  {
+    if(Owner != null)
+      Owner.SwitchToDialog( new Application::MainView, Effects::FadeInOutCentered, null, null, null, Effects::SlideUpCentered, null, null, null, null, false );
+  }
+
+  $rect <20,20,160,60>
+  object Views::Rectangle Rectangle
+  {
+    preset Bounds = <0,0,800,450>;
+    preset Color = #00000080;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Line Line
+  {
+    preset Point2 = <450,431>;
+    preset Point1 = <350,431>;
+    preset Width = 5;
+  }
+
+  $rect <20,20,160,60>
+  object WidgetSet::PushButton PushButton
+  {
+    preset Bounds = <19,13,190,200>;
+    preset Icon = Application::rectbtn;
+    preset Label = "Caption";
+    preset Appearance = Application::PushButtonConfig;
+  }
+
+  $rect <20,20,160,60>
+  object WidgetSet::PushButton PushButton1
+  {
+    preset Bounds = <415,13,586,200>;
+    preset Icon = Application::rectbtn;
+    preset Label = "Caption";
+    preset Appearance = Application::PushButtonConfig;
+  }
+
+  $rect <20,20,160,60>
+  object WidgetSet::PushButton PushButton2
+  {
+    preset Bounds = <216,13,387,200>;
+    preset Icon = Application::rectbtn;
+    preset Label = "Caption";
+    preset Appearance = Application::PushButtonConfig;
+  }
+
+  $rect <20,20,160,60>
+  object WidgetSet::PushButton PushButton3
+  {
+    preset Bounds = <613,13,784,200>;
+    preset Icon = Application::rectbtn;
+    preset Label = "Caption";
+    preset Appearance = Application::PushButtonConfig;
+  }
+
+  $rect <20,20,160,60>
+  object WidgetSet::PushButton PushButton4
+  {
+    preset Bounds = <19,225,190,412>;
+    preset Icon = Application::rectbtn;
+    preset Label = "Caption";
+    preset Appearance = Application::PushButtonConfig;
+  }
+
+  $rect <20,20,160,60>
+  object WidgetSet::PushButton PushButton5
+  {
+    preset Bounds = <415,225,586,412>;
+    preset Icon = Application::rectbtn;
+    preset Label = "Caption";
+    preset Appearance = Application::PushButtonConfig;
+  }
+
+  $rect <20,20,160,60>
+  object WidgetSet::PushButton PushButton6
+  {
+    preset Bounds = <216,225,387,412>;
+    preset Icon = Application::rectbtn;
+    preset Label = "Caption";
+    preset Appearance = Application::PushButtonConfig;
+  }
+
+  $rect <20,20,160,60>
+  object WidgetSet::PushButton PushButton7
+  {
+    preset Bounds = <613,225,784,412>;
+    preset Icon = Application::rectbtn;
+    preset Label = "Caption";
+    preset Appearance = Application::PushButtonConfig;
+  }
+
+  $reorder WipeTouchHandler 101
+}
+
+$rect <220,60,420,100>
+$output false
+class SettingParameter : Core::Group
+{
+  $rect <20,20,160,60>
+  object Core::WipeTouchHandler WipeTouchHandler
+  {
+    preset Bounds = <0,0,800,450>;
+    preset OnRight = EnterMainView;
+    preset OnLeft = null;
+  }
+
+  $rect <-10,490,190,530>
+  inherited property Bounds = <0,0,800,450>;
+
+  $rect <230,480,430,520>
+  slot EnterMainView
+  {
+    if(Owner != null)
+      Owner.SwitchToDialog( new Application::MainView, Effects::FadeInOutCentered, null, null, null, Effects::SlideRightCentered, null, null, null, null, false );
+  }
+
+  $rect <20,20,160,60>
+  object Views::Rectangle Rectangle
+  {
+    preset Bounds = <467,0,800,450>;
+    preset Color = #000000BE;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Line Line
+  {
+    preset Point2 = <20,275>;
+    preset Point1 = <20,185>;
+    preset Width = 5;
+  }
+
+  $reorder WipeTouchHandler 101
+}
+
+$rect <420,20,620,60>
+$output false
+class AlbumView : Core::Group
+{
+  $rect <20,470,220,510>
+  inherited property Bounds = <0,0,800,450>;
+
+  $rect <20,20,160,60>
+  object Views::Text Text
+  {
+    preset Bounds = <238,100,604,320>;
+    preset String = "Album";
+    preset Font = Resources::FontExtraLarge;
+    preset Color = #000000FF;
+  }
+
+  $rect <240,470,440,510>
+  slot EnterMainView
+  {
+    if(Owner != null)
+      Owner.SwitchToDialog( new Application::MainView, Effects::FadeInOutCentered, null, null, null, Effects::SlideLeftCentered, null, null, null, null, false );
+  }
+
+  $rect <20,20,160,60>
+  object Core::WipeTouchHandler WipeTouchHandler
+  {
+    preset Bounds = <0,0,800,450>;
+    preset OnLeft = EnterMainView;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Line Line
+  {
+    preset Point2 = <775,275>;
+    preset Point1 = <775,185>;
+    preset Width = 5;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Rectangle Rectangle
+  {
+    preset Bounds = <725,18,775,68>;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Rectangle Rectangle1
+  {
+    preset Bounds = <725,383,775,433>;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Rectangle Rectangle2
+  {
+    preset Bounds = <22,18,72,68>;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Rectangle Rectangle3
+  {
+    preset Bounds = <22,383,72,433>;
+  }
+}
+
+$rect <420,60,620,100>
+$output false
+class SettingSpec : Core::Group
+{
+  $rect <0,490,200,530>
+  inherited property Bounds = <0,0,800,450>;
+
+  $rect <230,490,430,530>
+  slot EnterMainView
+  {
+    if(Owner != null)
+
+      Owner.SwitchToDialog( new Application::MainView, Effects::FadeInOutCentered, null, null, null, Effects::SlideDownCentered, null, null, null, null, false );
+  }
+
+  $rect <20,20,160,60>
+  object Views::Rectangle Rectangle
+  {
+    preset Bounds = <0,0,800,450>;
+    preset Color = #000000FF;
+  }
+
+  $rect <20,20,160,60>
+  object Core::WipeTouchHandler WipeTouchHandler
+  {
+    preset Bounds = <0,0,800,450>;
+    preset OnBottom = EnterMainView;
+    preset OnLeft = null;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Line Line
+  {
+    preset Point2 = <450,17>;
+    preset Point1 = <350,17>;
+    preset Width = 5;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Text Text
+  {
+    preset Bounds = <350,28,450,69>;
+    preset String = "동영상";
+    preset Font = Application::MyFont;
+  }
+
+  // This method is called by 'HorizontalList' every time the list loads or updates \
+  // an item.
+  $rect <540,490,740,530>
+  slot OnLoadItem
+  {
+    // Get the number of the item to load. The list component takes care of the
+    // creation of the corresponding item view. Just access it ...
+    var int32       itemNo   = HorizontalList.Item;
+    var Views::Text itemView = (Views::Text)HorizontalList.View;
+
+    // The implementation of this slot method does not match the item class
+    // specified in the associated list component. Or the slot method is not
+    // called in context of the OnLoadItem list operation. 
+    if ( itemView == null )
+      return;
+
+    array string myItem[4];
+    myItem[0] = "8K";
+    myItem[1] = "4K";
+    myItem[2] = "2.7K";
+    myItem[3] = "1080P";
+
+    // Configure the item view ...
+    itemView.String = myItem[itemNo];
+    itemView.Font   = Resources::FontMedium;
+    itemView.Color  = #FFFFFFFF;
+
+    // Ensure that the item has correct size. The position of the item will be
+    // managed by the list component.
+    itemView.Bounds.size = point( HorizontalList.ItemWidth, HorizontalList.Bounds.h );
+  }
+
+  $rect <20,20,160,60>
+  object Core::SlideTouchHandler SlideTouchHandler
+  {
+    preset Bounds = <0,128,800,225>;
+    preset SnapNext = <150,0>;
+  }
+
+  $rect <20,20,160,60>
+  object Core::HorizontalList HorizontalList
+  {
+    preset Bounds = <0,128,800,225>;
+    preset Focus = null;
+    preset OnLoadItem = OnLoadItem;
+    preset PaddingRight = 330;
+    preset SlideHandler = SlideTouchHandler;
+    preset ScrollOffset = 0;
+    preset SelectedItem = 0;
+    preset PaddingLeft = 320;
+    preset ItemWidth = 150;
+    preset NoOfItems = 4;
+    preset ItemClass = Views::Text;
+  }
+
+  $rect <20,20,160,60>
+  object Core::SlideTouchHandler SlideTouchHandler1
+  {
+    preset Bounds = <0,255,800,352>;
+    preset SnapNext = <150,0>;
+  }
+
+  $rect <20,20,160,60>
+  object Core::HorizontalList HorizontalList1
+  {
+    preset Bounds = <0,255,800,352>;
+    preset Focus = null;
+    preset OnLoadItem = OnLoadItem1;
+    preset PaddingRight = 330;
+    preset SlideHandler = SlideTouchHandler1;
+    preset ScrollOffset = 0;
+    preset SelectedItem = 0;
+    preset PaddingLeft = 320;
+    preset ItemWidth = 150;
+    preset NoOfItems = 4;
+    preset ItemClass = Views::Text;
+  }
+
+  $rect <20,20,160,60>
+  object Core::HorizontalList HorizontalList2
+  {
+    preset Bounds = <0,352,800,449>;
+    preset Focus = null;
+    preset OnLoadItem = OnLoadItem2;
+    preset PaddingRight = 320;
+    preset SlideHandler = SlideTouchHandler2;
+    preset ScrollOffset = 0;
+    preset SelectedItem = 0;
+    preset PaddingLeft = 320;
+    preset ItemWidth = 160;
+    preset NoOfItems = 5;
+    preset ItemClass = WidgetSet::PushButton;
+  }
+
+  $rect <20,20,160,60>
+  object Core::SlideTouchHandler SlideTouchHandler2
+  {
+    preset Bounds = <0,352,800,449>;
+    preset SnapNext = <0,0>;
+  }
+
+  // This method is called by 'HorizontalList' every time the list loads or updates \
+  // an item.
+  $rect <540,530,740,570>
+  slot OnLoadItem1
+  {
+    // Get the number of the item to load. The list component takes care of the
+    // creation of the corresponding item view. Just access it ...
+    var int32       itemNo   = HorizontalList1.Item;
+    var Views::Text itemView = (Views::Text)HorizontalList1.View;
+
+    // The implementation of this slot method does not match the item class
+    // specified in the associated list component. Or the slot method is not
+    // called in context of the OnLoadItem list operation. 
+    if ( itemView == null )
+      return;
+
+
+    array string myItem[6];
+    myItem[0] = "60";
+    myItem[1] = "50";
+    myItem[2] = "48";
+    myItem[3] = "30";
+    myItem[4] = "25";
+    myItem[5] = "24";
+
+    // Configure the item view ...
+    itemView.String = myItem[itemNo];
+    itemView.Font   = Resources::FontMedium;
+    itemView.Color  = #FFFFFFFF;
+
+    // Ensure that the item has correct size. The position of the item will be
+    // managed by the list component.
+    itemView.Bounds.size = point( HorizontalList1.ItemWidth, HorizontalList1.Bounds.h );
+  }
+
+  // This method is called by 'HorizontalList' every time the list loads or updates \
+  // an item.
+  $rect <540,570,740,610>
+  slot OnLoadItem2
+  {
+    // Get the number of the item to load. The list component takes care of the
+    // creation of the corresponding item view. Just access it ...
+    var int32       itemNo   = HorizontalList2.Item;
+    var WidgetSet::PushButton itemView = (WidgetSet::PushButton)HorizontalList2.View;
+
+    // The implementation of this slot method does not match the item class
+    // specified in the associated list component. Or the slot method is not
+    // called in context of the OnLoadItem list operation. 
+    if ( itemView == null )
+      return;
+
+
+    array string myItem[6];
+    myItem[0] = "안정화 켜짐";
+    myItem[1] = "16:9";
+    myItem[2] = "무한";
+    myItem[3] = "광각";
+    myItem[4] = "1x";
+
+    // Configure the item view ...
+    itemView.Label = myItem[itemNo];
+    itemView.Appearance = Application::PushButtonConfig;
+    itemView.Icon=Application::BtnCapsule1;
+
+    // Ensure that the item has correct size. The position of the item will be
+    // managed by the list component.
+    itemView.Bounds.size = point( HorizontalList2.ItemWidth, HorizontalList2.Bounds.h );
+  }
+
+  $rect <20,20,160,60>
+  object Views::Text Text1
+  {
+    preset Bounds = <350,98,450,128>;
+    preset String = "해상도";
+    preset Font = Application::MyFont2;
+    preset Color = #565656FF;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Text Text2
+  {
+    preset Bounds = <350,225,450,255>;
+    preset String = "프레임";
+    preset Font = Application::MyFont2;
+    preset Color = #565656FF;
+  }
+
+  $rect <230,570,430,610>
+  slot SetFrameRate
+  {
+    var int32 itemIndex;
+    itemIndex = HorizontalList1.ScrollOffset / -160;
+    switch(itemIndex){ 
+      case 0: {Text.String = "타임랩스"; Text1.String = "해상도와 프레임 레이트를 선택하여 타임랩스를 촬영합니다.";}
+      case 1: {Text.String = "하이퍼랩스"; Text1.String = "해상도와 프레임 레이트를 선택하여 하이퍼랩스를 촬영합니다.";}
+      case 2: {Text.String = "슬로우모션"; Text1.String = "해상도와 프레임 레이트를 선택하여 슬로우모션을 촬영합니다.";}
+      case 3: {Text.String = "연사"; Text1.String = "해상도와 프레임 레이트를 선택하여 연사로 촬영합니다.";}
+      case 4: {Text.String = "사진"; Text1.String = "해상도와 프레임 레이트를 선택하여 사진을 촬영합니다.";}      
+      default: {Text.String = "동영상"; Text1.String = "해상도와 프레임 레이트를 선택하여 동영상을 촬영합니다.";}
+    } ;
+  }
+
+  $rect <230,530,430,570>
+  slot SetResolution
+  {
+    var int32 itemIndex;
+    itemIndex = HorizontalList.ScrollOffset / -160;
+    switch(itemIndex){ 
+      case 0: {Text.String = "타임랩스"; Text1.String = "해상도와 프레임 레이트를 선택하여 타임랩스를 촬영합니다.";}
+      case 1: {Text.String = "하이퍼랩스"; Text1.String = "해상도와 프레임 레이트를 선택하여 하이퍼랩스를 촬영합니다.";}
+      case 2: {Text.String = "슬로우모션"; Text1.String = "해상도와 프레임 레이트를 선택하여 슬로우모션을 촬영합니다.";}
+      case 3: {Text.String = "연사"; Text1.String = "해상도와 프레임 레이트를 선택하여 연사로 촬영합니다.";}
+      case 4: {Text.String = "사진"; Text1.String = "해상도와 프레임 레이트를 선택하여 사진을 촬영합니다.";}      
+      default: {Text.String = "동영상"; Text1.String = "해상도와 프레임 레이트를 선택하여 동영상을 촬영합니다.";}
+    } ;
+  }
+}
+
+$rect <620,20,820,60>
+$output false
+class SwitchMode : Core::Group
+{
+  $rect <-10,480,190,520>
+  inherited property Bounds = <0,0,800,450>;
+
+  $rect <20,20,160,60>
+  object Views::Rectangle Rectangle
+  {
+    preset Bounds = <0,0,800,450>;
+    preset Color = #00000064;
+  }
+
+  // This method is called by 'HorizontalList' every time the list loads or updates \
+  // an item.
+  $rect <-10,520,190,560>
+  slot OnLoadItem
+  {
+    /*
+
+      Hint:
+
+      - The code below demonstrates a simple usage of the list component.
+
+      - The list component creates and manages automatically view item instances of
+        the class specified in its property 'ItemClass'. In this example it is the
+        class 'Views::Image'.
+
+      - When you change the 'ItemClass' property you will also need to replace
+        accordingly all 'Views::Image' occurrences in the below code.
+
+      - You will also need to adapt the initialization of the 'itemView'.
+
+    */
+
+    // Get the number of the item to load. The list component takes care of the
+    // creation of the corresponding item view. Just access it ...
+    var int32        itemNo   = HorizontalList.Item;
+    var Views::Image itemView = (Views::Image)HorizontalList.View;
+
+    // The implementation of this slot method does not match the item class
+    // specified in the associated list component. Or the slot method is not
+    // called in context of the OnLoadItem list operation. 
+    if ( itemView == null )
+      return;
+        
+    // Configure the item view ...
+    itemView.Bitmap      = Application::SymbolIconsMedium;
+    itemView.FrameNumber = ( itemNo % itemView.Bitmap.NoOfFrames );
+
+    /*switch ( itemNo % 6 )
+    {
+      case 1  : itemView.Color = #0000FFFF;
+      case 2  : itemView.Color = #FF0000FF;
+      case 3  : itemView.Color = #00FF00FF;
+      case 4  : itemView.Color = #FF0000FF;
+      case 5  : itemView.Color = #00FF00FF;
+      default : itemView.Color = #FFFF00FF;
+    }    */
+
+    // Ensure that the item has correct size. The position of the item will be
+    // managed by the list component.
+    itemView.Bounds.size = point( HorizontalList.ItemWidth, HorizontalList.Bounds.h );
+  }
+
+  $rect <20,20,160,60>
+  object Views::Text Text
+  {
+    preset Bounds = <274,302,526,345>;
+    preset String = "동영상";
+    preset Font = Application::MyFont;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Text Text1
+  {
+    preset Bounds = <264,350,537,418>;
+    preset WrapText = true;
+    preset Alignment = Views::TextAlignment[AlignHorzCenter, AlignVertTop];
+    preset String = "해상도와 프레임 레이트를 선택하여 동영상을 촬영합니다.";
+    preset Font = Application::MyFont1;
+  }
+
+  $rect <220,480,420,520>
+  slot SelectMode
+  {
+    var int32 itemIndex;
+    itemIndex = HorizontalList.ScrollOffset / -160;
+    switch(itemIndex){ 
+      case 0: {Text.String = "타임랩스"; Text1.String = "해상도와 프레임 레이트를 선택하여 타임랩스를 촬영합니다.";}
+      case 1: {Text.String = "하이퍼랩스"; Text1.String = "해상도와 프레임 레이트를 선택하여 하이퍼랩스를 촬영합니다.";}
+      case 2: {Text.String = "슬로우모션"; Text1.String = "해상도와 프레임 레이트를 선택하여 슬로우모션을 촬영합니다.";}
+      case 3: {Text.String = "연사"; Text1.String = "해상도와 프레임 레이트를 선택하여 연사로 촬영합니다.";}
+      case 4: {Text.String = "사진"; Text1.String = "해상도와 프레임 레이트를 선택하여 사진을 촬영합니다.";}      
+      default: {Text.String = "동영상"; Text1.String = "해상도와 프레임 레이트를 선택하여 동영상을 촬영합니다.";}
+    } ;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Image Image
+  {
+    preset Bounds = <288,147,513,302>;
+    preset Bitmap = Application::BlueBtn;
+  }
+
+  $rect <20,20,160,60>
+  object Core::SlideTouchHandler SlideTouchHandler
+  {
+    preset Bounds = <0,0,800,450>;
+    preset OnSlide = OnLoadItem;
+    preset OnEnd = SelectMode;
+    preset OnStart = RestartTimer;
+    preset SnapNext = <160,0>;
+    preset ResetDelay = 200;
+    preset SpeedLimit = 80;
+    preset Friction = 0.5;
+  }
+
+  $rect <20,20,160,60>
+  object Core::HorizontalList HorizontalList
+  {
+    preset StackingPriority = 0;
+    preset Bounds = <0,165,800,285>;
+    preset OnUpdate = null;
+    preset OnLoadItem = OnLoadItem;
+    preset Endless = true;
+    preset SlideHandler = SlideTouchHandler;
+    preset ScrollOffset = 160;
+    preset SelectedItem = 0;
+    preset ItemWidth = 160;
+    preset NoOfItems = 6;
+    preset ItemClass = Views::Image;
+  }
+
+  $rect <220,520,420,560>
+  slot EnterMainView
+  {
+    if(Owner != null)
+      Owner.SwitchToDialog( new Application::MainView, null, null, null, null, null, null, null, null, null, false );
+  }
+
+  $rect <450,480,650,520>
+  object Core::Timer TouchTimer
+  {
+    preset OnTrigger = EnterMainView;
+    preset Period = 0;
+    preset Begin = 3000;
+    preset Enabled = true;
+  }
+
+  $rect <450,520,650,560>
+  slot RestartTimer
+  {
+    if ( TouchTimer.Enabled )
+      TouchTimer.Enabled = false;
+    TouchTimer.Enabled = true;
+  }
+}
+
+$rect <390,250,590,290>
+$output false
+resource Resources::Bitmap BlueBtn
+{
+  attr bitmapfile FileName = .\Res\bluebtn (1).png;
+  attr bitmapformat Format = Native;
+  attr framesize FrameSize;
+  attr framedelay FrameDelay;
+  attr bitmapdithering Dithering = Auto;
+  attr bitmapmode Mode = Default;
+}
+
+$rect <30,260,230,300>
+$output false
+resource Resources::Font MyFont
+{
+  attr fontname FontName = Noto Sans CJK KR;
+  attr fontheight Height = 32;
+  attr fontheightmode HeightMode = Popular;
+  attr fontquality Quality = High;
+  attr fontranges Ranges = 0x20-0xFF, 0xac00-0xd7a3;
+  attr fontaspectratio AspectRatio = 1.0;
+  attr fontbold Bold = false;
+  attr fontitalic Italic = false;
+  attr fontkerning Kerning = true;
+  attr fontrowdistance RowDistance;
+}
+
+$rect <30,300,230,340>
+$output false
+resource Resources::Font MyFont1
+{
+  attr fontname FontName = Noto Sans CJK KR;
+  attr fontheight Height = 12;
+  attr fontheightmode HeightMode = Popular;
+  attr fontquality Quality = High;
+  attr fontranges Ranges = 0x20-0xFF, 0xac00-0xd7a3;
+  attr fontaspectratio AspectRatio = 1.0;
+  attr fontbold Bold = false;
+  attr fontitalic Italic = false;
+  attr fontkerning Kerning = true;
+  attr fontrowdistance RowDistance;
+}
+
+$rect <590,210,790,250>
+$output false
+resource Resources::Bitmap camera
+{
+  attr bitmapfile FileName = .\Res\camera.png;
+  attr bitmapformat Format = Native;
+  attr framesize FrameSize;
+  attr framedelay FrameDelay;
+  attr bitmapdithering Dithering = Auto;
+  attr bitmapmode Mode = Default;
+}
+
+$rect <590,250,790,290>
+$output false
+resource Resources::Bitmap camcorder
+{
+  attr bitmapfile FileName = .\Res\camcorder (1).png;
+  attr bitmapformat Format = Native;
+  attr framesize FrameSize;
+  attr framedelay FrameDelay;
+  attr bitmapdithering Dithering = Auto;
+  attr bitmapmode Mode = Default;
+}
+
+$rect <590,290,790,330>
+$output false
+resource Resources::Bitmap burst
+{
+  attr bitmapfile FileName = .\Res\burst.png;
+  attr bitmapformat Format = Native;
+  attr framesize FrameSize;
+  attr framedelay FrameDelay;
+  attr bitmapdithering Dithering = Auto;
+  attr bitmapmode Mode = Default;
+}
+
+$rect <590,330,790,370>
+$output false
+resource Resources::Bitmap timelapse
+{
+  attr bitmapfile FileName = .\Res\timelapse.png;
+  attr bitmapformat Format = Native;
+  attr framesize FrameSize;
+  attr framedelay FrameDelay;
+  attr bitmapdithering Dithering = Auto;
+  attr bitmapmode Mode = Default;
+}
+
+$rect <590,370,790,410>
+$output false
+resource Resources::Bitmap hyperlapse
+{
+  attr bitmapfile FileName = .\Res\hyperlapse.png;
+  attr bitmapformat Format = Native;
+  attr framesize FrameSize;
+  attr framedelay FrameDelay;
+  attr bitmapdithering Dithering = Auto;
+  attr bitmapmode Mode = Default;
+}
+
+$rect <590,410,790,450>
+$output false
+resource Resources::Bitmap slowmotion
+{
+  attr bitmapfile FileName = .\Res\slowmotion.png;
+  attr bitmapformat Format = Native;
+  attr framesize FrameSize;
+  attr framedelay FrameDelay;
+  attr bitmapdithering Dithering = Auto;
+  attr bitmapmode Mode = Default;
+}
+
+// Bitmap resource containing diverse icons you can use in your project. The icons \
+// have the size 36x36 pixel.
+$rect <590,450,810,490>
+$output false
+resource Resources::Bitmap SymbolIconsMedium
+{
+  attr bitmapfile FileName = .\Res\ModeIcons.png;
+  attr framesize FrameSize = <36,36>;
+  attr framedelay FrameDelay;
+  attr bitmapformat Format = Alpha8;
+  attr bitmapdithering Dithering = Auto;
+  attr bitmapmode Mode = Default;
+}
+
+$rect <30,340,230,380>
+$output false
+resource Resources::Font MyFont2
+{
+  attr fontname FontName = Noto Sans CJK KR;
+  attr fontheight Height = 20;
+  attr fontheightmode HeightMode = Popular;
+  attr fontquality Quality = High;
+  attr fontranges Ranges = 0x20-0xFF, 0xac00-0xd7a3;
+  attr fontaspectratio AspectRatio = 1.0;
+  attr fontbold Bold = false;
+  attr fontitalic Italic = false;
+  attr fontkerning Kerning = true;
+  attr fontrowdistance RowDistance;
+}
+
+$rect <390,330,590,370>
+$output false
+resource Resources::Bitmap BtnCapsule1
+{
+  attr bitmapfile FileName = .\Res\capsule_darkgray.png;
+  attr bitmapformat Format = Native;
+  attr framesize FrameSize;
+  attr framedelay FrameDelay;
+  attr bitmapdithering Dithering = Auto;
+  attr bitmapmode Mode = Default;
+}
+
+$rect <390,370,590,410>
+$output false
+resource Resources::Bitmap rectbtn
+{
+  attr bitmapfile FileName = .\Res\rectbtn (1).png;
+  attr bitmapformat Format = Native;
+  attr framesize FrameSize;
+  attr framedelay FrameDelay;
+  attr bitmapdithering Dithering = Auto;
+  attr bitmapmode Mode = Default;
+}
+
+$rect <48,521,248,561>
+$output false
+class DeviceClass
+{
+  $rect <50,47,250,87>
+  property int32 Mode;
+
+  $rect <50,87,250,127>
+  onset Mode
+  {
+    // The value doesn't change - nothing to do.
+    if ( pure Mode == value )
+      return;
+
+    // Remember the property's new value.
+    pure Mode = value;
+
+    // TO DO:
+    // 
+    // Now you can handle the alternation of the property.
+  }
+
+  $rect <50,127,250,167>
+  onget Mode
+  {
+    return pure Mode;
+  }
+}
