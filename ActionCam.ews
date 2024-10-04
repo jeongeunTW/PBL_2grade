@@ -4,9 +4,9 @@ attr active = Application::SwitchMode;
 attr callStackMonitor_Show = false;
 attr codeColSelect = false;
 attr codeFirstPos = <0,0>;
-attr codeInspector = Application::SwitchMode.SelectMode;
-attr codeSelEnd = <44,7>;
-attr codeSelStart = <44,7>;
+attr codeInspector = Application::SwitchMode.OnSetMode;
+attr codeSelEnd = <30,14>;
+attr codeSelStart = <30,14>;
 attr connectInspectors = false;
 attr debug_TrackUpdates = false;
 attr extractDoc_ClassOverview = true;
@@ -46,7 +46,7 @@ view unit Application
   attr enableGrid = true;
   attr enableWireMode = false;
   attr grid = 10;
-  attr scrollTo = <-11,8>;
+  attr scrollTo = <-11,-40>;
   attr zoom = 1.0;
 }
 
@@ -68,22 +68,11 @@ view class Application::MainView
 {
   attr codeColSelect = false;
   attr codeFirstPos = <0,0>;
-  attr codeSelEnd = <16,1>;
-  attr codeSelStart = <16,1>;
+  attr codeInspector = ElementVisiable;
+  attr codeSelEnd = <0,0>;
+  attr codeSelStart = <0,0>;
   attr enableWireMode = false;
   attr scrollTo = <-7,-7>;
-  attr zoom = 1.0;
-}
-
-view class Application::SettingSpec
-{
-  attr codeColSelect = false;
-  attr codeFirstPos = <0,15>;
-  attr codeInspector = OnLoadItem2;
-  attr codeSelEnd = <12,19>;
-  attr codeSelStart = <12,19>;
-  attr enableWireMode = false;
-  attr scrollTo = <-43,-117>;
   attr zoom = 1.0;
 }
 
@@ -91,15 +80,27 @@ view class Application::SwitchMode
 {
   attr codeColSelect = false;
   attr codeFirstPos = <0,0>;
-  attr codeInspector = SelectMode;
-  attr codeSelEnd = <44,7>;
-  attr codeSelStart = <44,7>;
+  attr codeInspector = OnSetMode;
+  attr codeSelEnd = <30,14>;
+  attr codeSelStart = <30,14>;
   attr enableWireMode = false;
-  attr scrollTo = <-80,-45>;
+  attr scrollTo = <-121,-53>;
   attr zoom = 1.0;
 }
 
 view class Application::DeviceClass
+{
+  attr codeColSelect = false;
+  attr codeFirstPos = <0,0>;
+  attr codeInspector = OnSetMode;
+  attr codeSelEnd = <13,6>;
+  attr codeSelStart = <13,6>;
+  attr enableWireMode = false;
+  attr scrollTo = <-7,-7>;
+  attr zoom = 1.0;
+}
+
+view enum Application::Mode
 {
   attr enableWireMode = false;
   attr scrollTo = <-7,-7>;
