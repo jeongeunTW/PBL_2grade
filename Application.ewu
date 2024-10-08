@@ -8,7 +8,7 @@ class Application : Core::Root
   $rect <910,70,1090,110>
   inherited method Init()
   {
-    PresentDialog(new Application::MainView, null, null, null, null, null, null, null, null, false);
+    //PresentDialog(new Application::MainView, null, null, null, null, null, null, null, null, false);
   }
 
   $rect <909,20,1109,60>
@@ -36,6 +36,12 @@ class Application : Core::Root
   note legend Note1
   {
     attr Bounds = <9,540,789,770>;
+  }
+
+  $rect <20,20,160,60>
+  object Application::MainView MainView
+  {
+    preset Bounds = <0,0,800,450>;
   }
 }
 
@@ -78,14 +84,27 @@ $rect <20,60,220,100>
 $output false
 class MainView : Core::Group
 {
+  $rect <20,20,160,60>
+  object Application::SettingSpec SettingSpec
+  {
+    preset Bounds = <0,0,800,450>;
+    preset Visible = false;
+  }
+
+  $rect <20,20,160,60>
+  object Application::SwitchMode SwitchMode
+  {
+    preset Bounds = <0,0,800,450>;
+    preset Visible = false;
+  }
+
   $rect <40,500,240,540>
   inherited property Bounds = <0,0,800,450>;
 
-  $rect <260,500,460,540>
+  $rect <270,500,470,540>
   slot EnterQuickMenu
   {
-    if(Owner != null)
-      Owner.SwitchToDialog( new Application::QuickMenu, Effects::SlideDownCentered, null, null, null, null, null, null, null, null, false );
+    SwitchToDialog( new Application::QuickMenu, Effects::SlideDownCentered, null, null, null, null, null, null, null, null, false );
   }
 
   $rect <20,20,160,60>
@@ -129,27 +148,27 @@ class MainView : Core::Group
     Zoom.Visible=!Zoom.Visible;
     Setting.Visible=!Setting.Visible;
     RemainingMemory.Visible=!RemainingMemory.Visible;
+    ModeIcon.Visible=!ModeIcon.Visible;
+    Text1.Visible=!Text1.Visible;
+    Text.Visible=!Text.Visible;
   }
 
-  $rect <260,540,460,580>
+  $rect <270,540,470,580>
   slot EnterAlbum
   {
-    if(Owner != null)
-      Owner.SwitchToDialog( new Application::AlbumView, Effects::SlideRightCentered, null, null, null, null, null, null, null, null, false );
+    SwitchToDialog( new Application::AlbumView, Effects::SlideRightCentered, null, null, null, null, null, null, null, null, false );
   }
 
-  $rect <470,500,670,540>
+  $rect <270,580,470,620>
   slot EnterSetSpec
   {
-    if(Owner != null)
-      Owner.SwitchToDialog( new Application::SettingSpec, Effects::SlideUpCentered, null, null, null, null, null, null, null, null, false );
+    SwitchToDialog( SettingSpec, Effects::SlideUpCentered, null, null, null, null, null, null, null, null, false );
   }
 
-  $rect <470,540,670,580>
+  $rect <270,620,470,660>
   slot EnterSetParam
   {
-    if(Owner != null)
-      Owner.SwitchToDialog( new Application::SettingParameter, Effects::SlideLeftCentered, null, null, null, null, null, null, null, null, false );
+    SwitchToDialog( new Application::SettingParameter, Effects::SlideLeftCentered, null, null, null, null, null, null, null, null, false );
   }
 
   $rect <20,20,160,60>
@@ -168,14 +187,15 @@ class MainView : Core::Group
   {
     preset Bounds = <124,125,676,326>;
     preset OnSlide = SelectMode;
-    preset RetargetCondition = Core::RetargetReason[ForeignPress, LongPress];
+    preset RetargetCondition = Core::RetargetReason[];
   }
 
-  $rect <680,500,880,540>
+  $rect <500,500,700,540>
   slot SelectMode
   {
-    if(Owner != null)
-      Owner.SwitchToDialog( new Application::SwitchMode, null, null, null, null, null, null, null, null, null, false );
+    SwitchToDialog( SwitchMode, null, null, null, null, null, null, null, null, null, false );
+    SwitchMode.TouchTimer.Enabled = true;
+    SwitchMode.HorizontalList.ScrollOffset = -160 * SwitchMode.Mode;
   }
 
   $rect <20,20,160,60>
@@ -187,6 +207,7 @@ class MainView : Core::Group
     preset Point1 = <0,450>;
     preset OnLeave = ElementVisiable;
     preset OnPress = null;
+    preset RetargetDelay = 0;
     preset RetargetCondition = Core::RetargetReason[WipeDown, WipeLeft, WipeRight, WipeUp];
   }
 
@@ -218,6 +239,51 @@ class MainView : Core::Group
     preset Label = "광각";
     preset Appearance = Application::PushButtonConfig;
   }
+
+  $rect <20,20,160,60>
+  object Views::Image ModeIcon
+  {
+    preset StackingPriority = 3;
+    preset Bounds = <292,345,367,417>;
+    preset FrameNumber = 2;
+    preset Bitmap = Application::SymbolIconsLarge;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Text Text
+  {
+    preset Bounds = <395,361,445,401>;
+    preset String = "4K";
+    preset Font = Resources::FontExtraLarge;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Text Text1
+  {
+    preset Bounds = <445,361,495,401>;
+    preset String = "30";
+    preset Font = Resources::FontExtraLarge;
+  }
+
+  $rect <730,500,930,540>
+  object Core::PropertyObserver PropertyObserver
+  {
+    preset OnEvent = onEvent;
+    preset Outlet = ^Application::Device.Mode;
+  }
+
+  // This slot method is executed when the associated property observer 'PropertyObserver' \
+  // is notified.
+  $rect <730,540,930,580>
+  slot onEvent
+  {
+    ModeIcon.FrameNumber = (Application::Device.Mode+2)%6;
+    SettingSpec.Mode = Application::Device.Mode;
+    SwitchMode.Mode = Application::Device.Mode;
+  }
+
+  $reorder SettingSpec 101
+  $reorder SwitchMode 101
 }
 
 $rect <220,20,420,60>
@@ -446,7 +512,7 @@ class SettingSpec : Core::Group
   {
     if(Owner != null)
 
-      Owner.SwitchToDialog( new Application::MainView, Effects::FadeInOutCentered, null, null, null, Effects::SlideDownCentered, null, null, null, null, false );
+      Owner.SwitchToDialog( Owner, Effects::FadeInOutCentered, null, null, null, Effects::SlideDownCentered, null, null, null, null, false );
   }
 
   $rect <20,20,160,60>
@@ -475,7 +541,7 @@ class SettingSpec : Core::Group
   $rect <20,20,160,60>
   object Views::Text Text
   {
-    preset Bounds = <350,28,450,69>;
+    preset Bounds = <274,28,526,69>;
     preset String = "동영상";
     preset Font = Application::MyFont;
   }
@@ -697,13 +763,49 @@ class SettingSpec : Core::Group
       default: {Text.String = "동영상"; Text1.String = "해상도와 프레임 레이트를 선택하여 동영상을 촬영합니다.";}
     } ;
   }
+
+  $rect <680,490,880,530>
+  property int32 Mode;
+
+  $rect <680,530,880,570>
+  onset Mode
+  {
+    // The value doesn't change - nothing to do.
+    if ( pure Mode == value )
+      return;
+
+    // Remember the property's new value.
+    pure Mode = value;
+
+    switch(value){ 
+      case 1: { Text.String = "타임랩스"; }
+      case 2: { Text.String = "하이퍼랩스"; }
+      case 3: { Text.String = "슬로우모션"; }
+      case 4: { Text.String = "연사"; }
+      case 5: { Text.String = "사진"; }      
+      default: { Text.String = "동영상"; }
+    } ;
+  }
 }
 
 $rect <620,20,820,60>
 $output false
 class SwitchMode : Core::Group
 {
-  $rect <-10,480,190,520>
+  $rect <20,20,160,60>
+  object Core::SlideTouchHandler SlideTouchHandler
+  {
+    preset Bounds = <0,0,800,450>;
+    preset OnSlide = RestartTimer;
+    preset OnEnd = RestartTimer;
+    preset OnStart = RestartTimer;
+    preset SnapNext = <160,0>;
+    preset ResetDelay = 200;
+    preset SpeedLimit = 80;
+    preset Friction = 0.5;
+  }
+
+  $rect <10,480,210,520>
   inherited property Bounds = <0,0,800,450>;
 
   $rect <20,20,160,60>
@@ -715,28 +817,9 @@ class SwitchMode : Core::Group
 
   // This method is called by 'HorizontalList' every time the list loads or updates \
   // an item.
-  $rect <-10,520,190,560>
+  $rect <10,520,210,560>
   slot OnLoadItem
   {
-    /*
-
-      Hint:
-
-      - The code below demonstrates a simple usage of the list component.
-
-      - The list component creates and manages automatically view item instances of
-        the class specified in its property 'ItemClass'. In this example it is the
-        class 'Views::Image'.
-
-      - When you change the 'ItemClass' property you will also need to replace
-        accordingly all 'Views::Image' occurrences in the below code.
-
-      - You will also need to adapt the initialization of the 'itemView'.
-
-    */
-
-    // Get the number of the item to load. The list component takes care of the
-    // creation of the corresponding item view. Just access it ...
     var int32        itemNo   = HorizontalList.Item;
     var Views::Image itemView = (Views::Image)HorizontalList.View;
 
@@ -774,19 +857,23 @@ class SwitchMode : Core::Group
     preset Font = Application::MyFont1;
   }
 
-  $rect <450,480,650,520>
+  $rect <10,560,210,600>
   slot SelectMode
   {
     var int32 itemIndex;
     itemIndex = HorizontalList.ScrollOffset / -160;
     switch(itemIndex){ 
-      case 0: { pure Mode = Application::Mode.TIMELAPSE; }
-      case 1: { pure Mode = Application::Mode.HYPERLAPSE; }
-      case 2: { pure Mode = Application::Mode.SLOWMOTION; }
-      case 3: { pure Mode = Application::Mode.BURST;}
-      case 4: { pure Mode = Application::Mode.PHOTO; }      
-      case 5: { pure Mode = Application::Mode.VIDEO; }
+      case 1: { Text.String = "타임랩스"; Text1.String = "해상도와 프레임 레이트를 선택하여 타임랩스를 촬영합니다.";}
+      case 2: { Text.String = "하이퍼랩스"; Text1.String = "해상도와 프레임 레이트를 선택하여 하이퍼랩스를 촬영합니다."; }
+      case 3: { Text.String = "슬로우모션"; Text1.String = "해상도와 프레임 레이트를 선택하여 슬로우모션을 촬영합니다."; }
+      case 4: { Text.String = "연사"; Text1.String = "해상도와 프레임 레이트를 선택하여 연사로 촬영합니다."; }
+      case 5: { Text.String = "사진"; Text1.String = "해상도와 프레임 레이트를 선택하여 사진을 촬영합니다."; }      
+      default: { Text.String = "동영상"; Text1.String = "해상도와 프레임 레이트를 선택하여 동영상을 촬영합니다."; }
     } ;
+    Mode = itemIndex;
+    Application::Device.Mode = itemIndex;
+
+    Text2.String = Application::Device.Mode;
   }
 
   $rect <20,20,160,60>
@@ -798,51 +885,38 @@ class SwitchMode : Core::Group
   }
 
   $rect <20,20,160,60>
-  object Core::SlideTouchHandler SlideTouchHandler
-  {
-    preset Bounds = <0,0,800,450>;
-    preset OnSlide = OnLoadItem;
-    preset OnEnd = SelectMode;
-    preset OnStart = RestartTimer;
-    preset SnapNext = <160,0>;
-    preset ResetDelay = 200;
-    preset SpeedLimit = 80;
-    preset Friction = 0.5;
-  }
-
-  $rect <20,20,160,60>
   object Core::HorizontalList HorizontalList
   {
     preset StackingPriority = 0;
     preset Bounds = <0,165,800,285>;
-    preset OnUpdate = null;
+    preset OnUpdate = SelectMode;
     preset OnLoadItem = OnLoadItem;
     preset Endless = true;
     preset SlideHandler = SlideTouchHandler;
-    preset ScrollOffset = 160;
+    preset ScrollOffset = 0;
     preset SelectedItem = 0;
     preset ItemWidth = 160;
     preset NoOfItems = 6;
     preset ItemClass = Views::Image;
   }
 
-  $rect <220,560,420,600>
+  $rect <230,560,430,600>
   slot EnterMainView
   {
     if(Owner != null)
-      Owner.SwitchToDialog( new Application::MainView, null, null, null, null, null, null, null, null, null, false );
+      Owner.SwitchToDialog( Owner.Owner, null, null, null, null, null, null, null, null, null, false );
   }
 
-  $rect <220,480,420,520>
+  $rect <230,480,430,520>
   object Core::Timer TouchTimer
   {
     preset OnTrigger = EnterMainView;
     preset Period = 0;
     preset Begin = 3000;
-    preset Enabled = true;
+    preset Enabled = false;
   }
 
-  $rect <220,520,420,560>
+  $rect <230,520,430,560>
   slot RestartTimer
   {
     if ( TouchTimer.Enabled )
@@ -850,13 +924,12 @@ class SwitchMode : Core::Group
     TouchTimer.Enabled = true;
   }
 
-  $rect <450,520,650,560>
-  property int32 Mode = 5;
+  $rect <450,480,650,520>
+  property int32 Mode = 0;
 
-  $rect <450,560,650,600>
+  $rect <450,520,650,560>
   onset Mode
   {
-
     // The value doesn't change - nothing to do.
     if ( pure Mode == value )
       return;
@@ -864,16 +937,17 @@ class SwitchMode : Core::Group
     // Remember the property's new value.
     pure Mode = value;
 
-    switch(pure Mode){ 
-      case Application::Mode.TIMELAPSE: {Text.String = "타임랩스"; Text1.String = "해상도와 프레임 레이트를 선택하여 타임랩스를 촬영합니다.";}
-      case Application::Mode.HYPERLAPSE1: {Text.String = "하이퍼랩스"; Text1.String = "해상도와 프레임 레이트를 선택하여 하이퍼랩스를 촬영합니다.";}
-      case Application::Mode.SLOWMOTION: {Text.String = "슬로우모션"; Text1.String = "해상도와 프레임 레이트를 선택하여 슬로우모션을 촬영합니다.";}
-      case Application::Mode.BURST: {Text.String = "연사"; Text1.String = "해상도와 프레임 레이트를 선택하여 연사로 촬영합니다.";}
-      case Application::Mode.PHOTO: {Text.String = "사진"; Text1.String = "해상도와 프레임 레이트를 선택하여 사진을 촬영합니다.";}      
-      case Application::Mode.VIDEO: {Text.String = "동영상"; Text1.String = "해상도와 프레임 레이트를 선택하여 동영상을 촬영합니다.";}
-    } ;
-
   }
+
+  $rect <20,20,160,60>
+  object Views::Text Text2
+  {
+    preset Bounds = <585,330,685,360>;
+    preset String = "Text";
+    preset Font = Resources::DefaultFont;
+  }
+
+  $reorder SlideTouchHandler 100
 }
 
 $rect <400,240,600,280>
@@ -998,7 +1072,7 @@ $rect <600,440,820,480>
 $output false
 resource Resources::Bitmap SymbolIconsMedium
 {
-  attr bitmapfile FileName = .\Res\ModeIcons.png;
+  attr bitmapfile FileName = .\Res\ModeIcons2 (1).png;
   attr framesize FrameSize = <36,36>;
   attr framedelay FrameDelay;
   attr bitmapformat Format = Alpha8;
@@ -1046,14 +1120,144 @@ resource Resources::Bitmap rectbtn
   attr bitmapmode Mode = Default;
 }
 
-$rect <50,530,250,570>
-$output false
-class DeviceClass
+$rect <40,500,240,540>
+inline Inline
 {
-  $rect <50,47,250,87>
-  property int32 Mode;
+  /*
 
-  $rect <50,87,250,127>
+    TO DO:
+
+    Include external header files or add type and function declarations needed
+    in the implementation of Application::DeviceClass1. For example:
+
+      #include "DeviceDriver.h"
+
+      #include "your_middleware_api.h"
+
+      void Your_Middleware_Some_Function( int aSomeArg );
+
+  */
+}
+
+$rect <40,460,240,500>
+$output false
+class DeviceClass : Templates::DeviceClass
+{
+  $rect <30,80,230,120>
+  inherited method Done()
+  {
+    // The following section is intended to perform de-initialization-related operations
+    // in the underlying device or middleware. Consequently, the section is taken in
+    // account only when generating code (not during prototyping).
+    $if !$prototyper
+      var object thisObject = this;
+
+      /*
+         TO DO:
+
+         The following native statement is intended to enclose code to communicate with
+         your device API. The variable 'thisObject' contains a pointer to the actually
+         de-initialized Application::DeviceClass1 object. Use the 'thisObject' pointer to
+         e.g. de-register the object from the middleware if you have registered it
+         beforehand.
+         
+      */
+
+      native ( thisObject )
+      {
+        /*
+           TO DO:
+
+           Depending on your application case you call functions of the underlying
+           middleware (or access the device directly) in order to perform the necessary
+           de-initialization steps. For example, you invoke some 'C' function:
+
+             YourDevice_DeInitialize();
+
+           IMPORTANT:
+           ----------
+
+           The variable 'thisObject' represents the actually de-initialized instance of the
+           Application::DeviceClass1. If you have stored this object at the initialization
+           time (in the 'Init' method) in some global C variable or registered it by the
+           middleware, it is important to perform now the opposite operation. Set the
+           global variable to NULL or de-register 'thisObject' object from the middleware.
+           
+        */
+      }
+    $endif
+  }
+
+  $rect <30,40,230,80>
+  inherited method Init()
+  {
+    // The following section is intended to perform initialization-related operations
+    // in the underlying device or middleware. Consequently, the section is taken in
+    // account only when generating code (not during prototyping).
+    $if !$prototyper
+      var object thisObject = this;
+
+      /*
+         TO DO:
+
+         The following native statement is intended to enclose code to communicate with
+         your device API. The variable 'thisObject' contains a pointer to the actually
+         initialized Application::DeviceClass1 object. Use the 'thisObject' pointer to
+         e.g. register the object by the middleware as receiver of events, etc.
+         
+      */
+
+      native ( thisObject )
+      {
+        /*
+           TO DO:
+
+           Depending on your application case you call functions of the underlying
+           middleware (or access the device directly) in order to perform the necessary
+           initialization steps. For example, you invoke some 'C' function:
+
+             YourDevice_Initialize();
+
+           The variable 'thisObject' represents the actually initialized instance of the
+           Application::DeviceClass1. You can store this variable e.g. in the middleware
+           and use it whenever the middleware needs to notify the GUI application about
+           some state alternation or events. In this manner, the middleware will be able
+           to invoke methods of the interface device object.
+
+           For example, you can store 'thisObject' in some global C variable:
+
+             // Declaration of the global C variable
+             XObject theDeviceObject;
+
+             // Store the instance in the global variable
+             theDeviceObject = thisObject;
+
+           Later use the global variable e.g. to provide the GUI application with events:
+
+             ApplicationDeviceClass__TriggerSomeEvent( theDeviceObject );
+
+           IMPORTANT:
+           ----------
+
+           If you store 'thisObject' for later use, don't forget to implement the opposite
+           operation in the method 'Done'. Concrete, 'Done' should set the global variable
+           again to the value NULL.
+
+        */
+      }
+    $endif
+  }
+
+  // Constructor and Destructor
+  note group Note1
+  {
+    attr Bounds = <10,0,250,140>;
+  }
+
+  $rect <30,160,230,200>
+  property int32 Mode = 0;
+
+  $rect <30,200,230,240>
   onset Mode
   {
     // The value doesn't change - nothing to do.
@@ -1063,31 +1267,23 @@ class DeviceClass
     // Remember the property's new value.
     pure Mode = value;
 
-    // TO DO:
-    // 
-    // Now you can handle the alternation of the property.
+    notifyobservers ^Mode;
   }
 }
 
-$rect <410,530,610,570>
+$rect <240,460,440,500>
+autoobject Application::DeviceClass Device;
+
+// Bitmap resource containing diverse icons you can use in your project. The icons \
+// have the size 36x36 pixel.
+$rect <600,480,820,520>
 $output false
-enum Mode
+resource Resources::Bitmap SymbolIconsLarge
 {
-  $rect <10,10,210,50>
-  item VIDEO = 0;
-
-  $rect <220,10,420,50>
-  item TIMELAPSE = 1;
-
-  $rect <430,10,630,50>
-  item HYPERLAPSE = 2;
-
-  $rect <10,60,210,100>
-  item SLOWMOTION = 3;
-
-  $rect <220,60,420,100>
-  item BURST = 4;
-
-  $rect <430,60,630,100>
-  item PHOTO = 5;
+  attr bitmapfile FileName = .\Res\ModeIcons3.png;
+  attr framesize FrameSize = <72,72>;
+  attr framedelay FrameDelay;
+  attr bitmapformat Format = Alpha8;
+  attr bitmapdithering Dithering = Auto;
+  attr bitmapmode Mode = Default;
 }

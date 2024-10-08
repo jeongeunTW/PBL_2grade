@@ -3,10 +3,10 @@ $version 1.0
 attr active = Application::SwitchMode;
 attr callStackMonitor_Show = false;
 attr codeColSelect = false;
-attr codeFirstPos = <0,0>;
-attr codeInspector = Application::SwitchMode.OnSetMode;
-attr codeSelEnd = <30,14>;
-attr codeSelStart = <30,14>;
+attr codeFirstPos = <0,10>;
+attr codeInspector = Core::Group.FadeGroup;
+attr codeSelEnd = <2,15>;
+attr codeSelStart = <2,15>;
 attr connectInspectors = false;
 attr debug_TrackUpdates = false;
 attr extractDoc_ClassOverview = true;
@@ -46,7 +46,7 @@ view unit Application
   attr enableGrid = true;
   attr enableWireMode = false;
   attr grid = 10;
-  attr scrollTo = <-11,-40>;
+  attr scrollTo = <-11,-8>;
   attr zoom = 1.0;
 }
 
@@ -55,24 +55,25 @@ view class Application::Application
   attr aspectRatio = 1.0;
   attr codeColSelect = false;
   attr codeFirstPos = <0,0>;
-  attr codeSelEnd = <126,0>;
-  attr codeSelStart = <126,0>;
+  attr codeInspector = Init;
+  attr codeSelEnd = <2,0>;
+  attr codeSelStart = <2,0>;
   attr enableGrid = true;
   attr enableWireMode = false;
   attr grid = 10;
-  attr scrollTo = <-34,-36>;
-  attr zoom = 1.0;
+  attr scrollTo = <-190,-118>;
+  attr zoom = 0.75;
 }
 
 view class Application::MainView
 {
   attr codeColSelect = false;
   attr codeFirstPos = <0,0>;
-  attr codeInspector = ElementVisiable;
-  attr codeSelEnd = <0,0>;
-  attr codeSelStart = <0,0>;
+  attr codeInspector = EnterSetSpec;
+  attr codeSelEnd = <16,0>;
+  attr codeSelStart = <16,0>;
   attr enableWireMode = false;
-  attr scrollTo = <-7,-7>;
+  attr scrollTo = <-7,-55>;
   attr zoom = 1.0;
 }
 
@@ -80,11 +81,23 @@ view class Application::SwitchMode
 {
   attr codeColSelect = false;
   attr codeFirstPos = <0,0>;
-  attr codeInspector = OnSetMode;
-  attr codeSelEnd = <30,14>;
-  attr codeSelStart = <30,14>;
+  attr codeInspector = EnterMainView;
+  attr codeSelEnd = <35,1>;
+  attr codeSelStart = <35,1>;
   attr enableWireMode = false;
-  attr scrollTo = <-121,-53>;
+  attr scrollTo = <-7,-7>;
+  attr zoom = 1.0;
+}
+
+view class Application::SettingSpec
+{
+  attr codeColSelect = false;
+  attr codeFirstPos = <0,0>;
+  attr codeInspector = EnterMainView;
+  attr codeSelEnd = <29,2>;
+  attr codeSelStart = <29,2>;
+  attr enableWireMode = false;
+  attr scrollTo = <-7,-23>;
   attr zoom = 1.0;
 }
 
@@ -93,16 +106,9 @@ view class Application::DeviceClass
   attr codeColSelect = false;
   attr codeFirstPos = <0,0>;
   attr codeInspector = OnSetMode;
-  attr codeSelEnd = <13,6>;
-  attr codeSelStart = <13,6>;
+  attr codeSelEnd = <21,7>;
+  attr codeSelStart = <21,7>;
   attr enableWireMode = false;
-  attr scrollTo = <-7,-7>;
-  attr zoom = 1.0;
-}
-
-view enum Application::Mode
-{
-  attr enableWireMode = false;
-  attr scrollTo = <-7,-7>;
+  attr scrollTo = <-7,-20>;
   attr zoom = 1.0;
 }
