@@ -50,7 +50,7 @@ unit Application
 // Mosaic Framework
 note group Note1
 {
-  attr Bounds = <20,20,260,330>;
+  attr Bounds = <20,20,260,370>;
 }
 
 // Profile Configuration

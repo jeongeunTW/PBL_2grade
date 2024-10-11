@@ -84,27 +84,13 @@ $rect <20,60,220,100>
 $output false
 class MainView : Core::Group
 {
-  $rect <20,20,160,60>
-  object Application::SettingSpec SettingSpec
-  {
-    preset Bounds = <0,0,800,450>;
-    preset Visible = false;
-  }
-
-  $rect <20,20,160,60>
-  object Application::SwitchMode SwitchMode
-  {
-    preset Bounds = <0,0,800,450>;
-    preset Visible = false;
-  }
-
-  $rect <40,500,240,540>
+  $rect <-730,540,-530,580>
   inherited property Bounds = <0,0,800,450>;
 
-  $rect <270,500,470,540>
+  $rect <-500,540,-300,580>
   slot EnterQuickMenu
   {
-    SwitchToDialog( new Application::QuickMenu, Effects::SlideDownCentered, null, null, null, null, null, null, null, null, false );
+    PresentDialog( QuickMenu, Effects::SlideDownCentered, null, null, null, null, null, null, null, false );
   }
 
   $rect <20,20,160,60>
@@ -130,6 +116,17 @@ class MainView : Core::Group
   }
 
   $rect <20,20,160,60>
+  object Views::Image ModeIcon
+  {
+    preset StackingPriority = 3;
+    preset Bounds = <292,345,367,417>;
+    preset Quality = true;
+    preset FrameNumber = 2;
+    preset Bitmap = Application::SymbolIconsLarge;
+    preset Embedded = false;
+  }
+
+  $rect <20,20,160,60>
   object Views::Text SD
   {
     preset Bounds = <39,44,119,83>;
@@ -138,37 +135,32 @@ class MainView : Core::Group
     preset Color = #000000FF;
   }
 
-  $rect <40,540,240,580>
-  slot ElementVisiable
+  $rect <-730,580,-530,620>
+  slot ElementVisiable_Slot
   {
-    SD.Visible=!SD.Visible;
-    SDBackground.Visible=!SDBackground.Visible;
-    Battery.Visible=!Battery.Visible;
-    FOV.Visible=!FOV.Visible;
-    Zoom.Visible=!Zoom.Visible;
-    Setting.Visible=!Setting.Visible;
-    RemainingMemory.Visible=!RemainingMemory.Visible;
-    ModeIcon.Visible=!ModeIcon.Visible;
-    Text1.Visible=!Text1.Visible;
-    Text.Visible=!Text.Visible;
+    if(Visiable)
+      VisiableFalse(0);
+
+    else if(!Visiable)
+      VisiableTrue(0);
   }
 
-  $rect <270,540,470,580>
+  $rect <-500,580,-300,620>
   slot EnterAlbum
   {
-    SwitchToDialog( new Application::AlbumView, Effects::SlideRightCentered, null, null, null, null, null, null, null, null, false );
+    PresentDialog( AlbumView, Effects::SlideRightCentered, null, null, null, null, null, null, null, false );
   }
 
-  $rect <270,580,470,620>
+  $rect <-270,580,-70,620>
   slot EnterSetSpec
   {
-    SwitchToDialog( SettingSpec, Effects::SlideUpCentered, null, null, null, null, null, null, null, null, false );
+    PresentDialog( SettingSpec, Effects::SlideUpCentered, null, null, null, null, null, null, null, false );
   }
 
-  $rect <270,620,470,660>
+  $rect <-500,620,-300,660>
   slot EnterSetParam
   {
-    SwitchToDialog( new Application::SettingParameter, Effects::SlideLeftCentered, null, null, null, null, null, null, null, null, false );
+    PresentDialog( SettingParameter, Effects::SlideLeftCentered, null, null, null, null, null, null, null, false );
   }
 
   $rect <20,20,160,60>
@@ -179,7 +171,7 @@ class MainView : Core::Group
     preset OnRight = EnterAlbum;
     preset OnTop = EnterSetSpec;
     preset OnLeft = EnterSetParam;
-    preset RetargetCondition = Core::RetargetReason[];
+    preset RetargetCondition = Core::RetargetReason[ForeignPress];
   }
 
   $rect <20,20,160,60>
@@ -187,15 +179,7 @@ class MainView : Core::Group
   {
     preset Bounds = <124,125,676,326>;
     preset OnSlide = SelectMode;
-    preset RetargetCondition = Core::RetargetReason[];
-  }
-
-  $rect <500,500,700,540>
-  slot SelectMode
-  {
-    SwitchToDialog( SwitchMode, null, null, null, null, null, null, null, null, null, false );
-    SwitchMode.TouchTimer.Enabled = true;
-    SwitchMode.HorizontalList.ScrollOffset = -160 * SwitchMode.Mode;
+    preset RetargetCondition = Core::RetargetReason[ForeignPress];
   }
 
   $rect <20,20,160,60>
@@ -205,10 +189,19 @@ class MainView : Core::Group
     preset Point3 = <800,0>;
     preset Point2 = <800,450>;
     preset Point1 = <0,450>;
-    preset OnLeave = ElementVisiable;
+    preset OnLeave = null;
+    preset OnRelease = ElementVisiable_Slot;
     preset OnPress = null;
     preset RetargetDelay = 0;
     preset RetargetCondition = Core::RetargetReason[WipeDown, WipeLeft, WipeRight, WipeUp];
+  }
+
+  $rect <-270,540,-70,580>
+  slot SelectMode
+  {
+    PresentDialog( SwitchMode, null, null, null, null, null, null, null, null, false );
+    SwitchMode.TouchTimer.Enabled = true;
+    SwitchMode.HorizontalList.ScrollOffset = -160 * SwitchMode.Mode;
   }
 
   $rect <20,20,160,60>
@@ -225,7 +218,8 @@ class MainView : Core::Group
   object WidgetSet::PushButton Setting
   {
     preset Bounds = <237,329,564,429>;
-    preset OnPress = EnterSetSpec;
+    preset OnLeave = EnterSetSpec;
+    preset OnPress = ElementVisiable_Slot;
     preset Icon = Application::BtnCapsule;
     preset Label = "Caption";
     preset Appearance;
@@ -238,15 +232,6 @@ class MainView : Core::Group
     preset Icon = Application::BtnCircle;
     preset Label = "광각";
     preset Appearance = Application::PushButtonConfig;
-  }
-
-  $rect <20,20,160,60>
-  object Views::Image ModeIcon
-  {
-    preset StackingPriority = 3;
-    preset Bounds = <292,345,367,417>;
-    preset FrameNumber = 2;
-    preset Bitmap = Application::SymbolIconsLarge;
   }
 
   $rect <20,20,160,60>
@@ -265,7 +250,7 @@ class MainView : Core::Group
     preset Font = Resources::FontExtraLarge;
   }
 
-  $rect <730,500,930,540>
+  $rect <-269,640,-69,680>
   object Core::PropertyObserver PropertyObserver
   {
     preset OnEvent = onEvent;
@@ -274,7 +259,7 @@ class MainView : Core::Group
 
   // This slot method is executed when the associated property observer 'PropertyObserver' \
   // is notified.
-  $rect <730,540,930,580>
+  $rect <-269,680,-69,720>
   slot onEvent
   {
     ModeIcon.FrameNumber = (Application::Device.Mode+2)%6;
@@ -282,8 +267,80 @@ class MainView : Core::Group
     SwitchMode.Mode = Application::Device.Mode;
   }
 
-  $reorder SettingSpec 101
-  $reorder SwitchMode 101
+  $rect <20,20,160,60>
+  object Application::SwitchMode SwitchMode
+  {
+    preset Bounds = <800,449,1600,899>;
+    preset Enabled = false;
+    preset Visible = false;
+  }
+
+  $rect <20,20,160,60>
+  object Application::SettingSpec SettingSpec
+  {
+    preset Bounds = <0,449,800,899>;
+    preset Enabled = false;
+    preset Visible = false;
+  }
+
+  $rect <20,20,160,60>
+  object Application::QuickMenu QuickMenu
+  {
+    preset Bounds = <0,-450,800,0>;
+  }
+
+  $rect <20,20,160,60>
+  object Application::SettingParameter SettingParameter
+  {
+    preset Bounds = <800,0,1600,450>;
+  }
+
+  $rect <20,20,160,60>
+  object Application::AlbumView AlbumView
+  {
+    preset Bounds = <-800,0,0,450>;
+  }
+
+  $rect <-729,707,-529,747>
+  method int32 VisiableTrue( arg int32 aArg1 )
+  {
+    Visiable = true;
+
+    SD.Visible = true;
+    SDBackground.Visible = true;
+    Battery.Visible = true;
+    FOV.Visible = true;
+    Zoom.Visible = true;
+    Setting.Visible = true;
+    RemainingMemory.Visible = true;
+    ModeIcon.Visible = true;
+    Text1.Visible = true;
+    Text.Visible = true;
+                   
+    return 0;
+  }
+
+  $rect <-729,747,-529,787>
+  method int32 VisiableFalse( arg int32 aArg1 )
+  {
+    Visiable = false;
+
+    SD.Visible = false;
+    SDBackground.Visible = false;
+    Battery.Visible = false;
+    FOV.Visible = false;
+    Zoom.Visible = false;
+    Setting.Visible = false;
+    RemainingMemory.Visible = false;
+    ModeIcon.Visible = false;
+    Text1.Visible = false;
+    Text.Visible = false;
+
+    return 0;
+  }
+
+  $rect <-729,669,-529,709>
+  var bool Visiable = true;
 }
 
 $rect <220,20,420,60>
@@ -304,7 +361,7 @@ class QuickMenu : Core::Group
   slot EnterMainView
   {
     if(Owner != null)
-      Owner.SwitchToDialog( new Application::MainView, Effects::FadeInOutCentered, null, null, null, Effects::SlideUpCentered, null, null, null, null, false );
+      Owner.DismissDialog( this, Effects::SlideUpCentered, null, null, null, null, false );
   }
 
   $rect <20,20,160,60>
@@ -412,11 +469,11 @@ class SettingParameter : Core::Group
   $rect <-10,490,190,530>
   inherited property Bounds = <0,0,800,450>;
 
-  $rect <230,480,430,520>
+  $rect <210,490,410,530>
   slot EnterMainView
   {
     if(Owner != null)
-      Owner.SwitchToDialog( new Application::MainView, Effects::FadeInOutCentered, null, null, null, Effects::SlideRightCentered, null, null, null, null, false );
+      Owner.DismissDialog( this, Effects::SlideRightCentered, null, null, null, null, false );
   }
 
   $rect <20,20,160,60>
@@ -457,7 +514,7 @@ class AlbumView : Core::Group
   slot EnterMainView
   {
     if(Owner != null)
-      Owner.SwitchToDialog( new Application::MainView, Effects::FadeInOutCentered, null, null, null, Effects::SlideLeftCentered, null, null, null, null, false );
+      Owner.DismissDialog( this, Effects::SlideLeftCentered, null, null, null, null, false );
   }
 
   $rect <20,20,160,60>
@@ -511,8 +568,7 @@ class SettingSpec : Core::Group
   slot EnterMainView
   {
     if(Owner != null)
-
-      Owner.SwitchToDialog( Owner, Effects::FadeInOutCentered, null, null, null, Effects::SlideDownCentered, null, null, null, null, false );
+      Owner.DismissDialog( this, Effects::SlideDownCentered, null, null, null, null, false );
   }
 
   $rect <20,20,160,60>
@@ -904,7 +960,8 @@ class SwitchMode : Core::Group
   slot EnterMainView
   {
     if(Owner != null)
-      Owner.SwitchToDialog( Owner.Owner, null, null, null, null, null, null, null, null, null, false );
+      Owner.SwitchToDialog( new Application::MainView, null, null, null, null, null, null, null, null, null, false );
+      
   }
 
   $rect <230,480,430,520>

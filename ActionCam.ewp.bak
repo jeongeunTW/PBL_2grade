@@ -136,3 +136,9 @@ unit WidgetSet
 // called 'Default'
 $rect <540,110,740,150>
 language Korean;
+
+$rect <40,310,240,350>
+unit Templates
+{
+  attr Directory = $Mosaic\;
+}
