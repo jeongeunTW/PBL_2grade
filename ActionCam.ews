@@ -1,12 +1,12 @@
 $version 1.0
 
-attr active = Application::SettingSpec;
+attr active = Application::Parameter;
 attr callStackMonitor_Show = false;
 attr codeColSelect = false;
 attr codeFirstPos = <0,0>;
-attr codeInspector = Application::SettingSpec.EnterMainView;
-attr codeSelEnd = <89,1>;
-attr codeSelStart = <89,1>;
+attr codeInspector = Application::Parameter.btnSlot1;
+attr codeSelEnd = <0,0>;
+attr codeSelStart = <0,0>;
 attr connectInspectors = false;
 attr debug_TrackUpdates = false;
 attr extractDoc_ClassOverview = true;
@@ -46,93 +46,30 @@ view unit Application
   attr enableGrid = true;
   attr enableWireMode = false;
   attr grid = 10;
-  attr scrollTo = <-11,-8>;
-  attr zoom = 1.0;
-}
-
-view class Application::Application
-{
-  attr aspectRatio = 1.0;
-  attr codeColSelect = false;
-  attr codeFirstPos = <0,0>;
-  attr codeInspector = Init;
-  attr codeSelEnd = <2,0>;
-  attr codeSelStart = <2,0>;
-  attr enableGrid = true;
-  attr enableWireMode = false;
-  attr grid = 10;
-  attr scrollTo = <-190,-118>;
+  attr scrollTo = <-34,-7>;
   attr zoom = 0.75;
 }
 
-view class Application::MainView
+view class Application::Parameter
 {
   attr codeColSelect = false;
   attr codeFirstPos = <0,0>;
-  attr codeInspector = ElementVisiable_Slot;
-  attr codeSelEnd = <20,1>;
-  attr codeSelStart = <20,1>;
+  attr codeInspector = btnSlot1;
+  attr codeSelEnd = <0,0>;
+  attr codeSelStart = <0,0>;
   attr enableWireMode = false;
-  attr scrollTo = <-609,-94>;
+  attr scrollTo = <-272,129>;
   attr zoom = 0.75;
-}
-
-view class Application::SettingSpec
-{
-  attr codeColSelect = false;
-  attr codeFirstPos = <0,0>;
-  attr codeInspector = EnterMainView;
-  attr codeSelEnd = <89,1>;
-  attr codeSelStart = <89,1>;
-  attr enableWireMode = false;
-  attr scrollTo = <-39,-165>;
-  attr zoom = 1.0;
 }
 
 view class Application::DeviceClass
 {
   attr codeColSelect = false;
   attr codeFirstPos = <0,0>;
-  attr codeInspector = OnSetMode;
-  attr codeSelEnd = <21,7>;
-  attr codeSelStart = <21,7>;
+  attr codeInspector = OnSetMonth;
+  attr codeSelEnd = <18,5>;
+  attr codeSelStart = <18,5>;
   attr enableWireMode = false;
-  attr scrollTo = <-7,-20>;
-  attr zoom = 1.0;
-}
-
-view class Application::AlbumView
-{
-  attr codeColSelect = false;
-  attr codeFirstPos = <0,0>;
-  attr codeInspector = EnterMainView;
-  attr codeSelEnd = <27,1>;
-  attr codeSelStart = <27,1>;
-  attr enableWireMode = false;
-  attr scrollTo = <-7,-7>;
-  attr zoom = 1.0;
-}
-
-view class Application::QuickMenu
-{
-  attr codeColSelect = false;
-  attr codeFirstPos = <0,0>;
-  attr codeInspector = EnterMainView;
-  attr codeSelEnd = <15,1>;
-  attr codeSelStart = <15,1>;
-  attr enableWireMode = false;
-  attr scrollTo = <-7,-7>;
-  attr zoom = 1.0;
-}
-
-view class Application::SettingParameter
-{
-  attr codeColSelect = false;
-  attr codeFirstPos = <0,0>;
-  attr codeInspector = EnterMainView;
-  attr codeSelEnd = <25,1>;
-  attr codeSelStart = <25,1>;
-  attr enableWireMode = false;
-  attr scrollTo = <-7,-7>;
-  attr zoom = 1.0;
+  attr scrollTo = <-158,503>;
+  attr zoom = 0.75;
 }
