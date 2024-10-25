@@ -84,10 +84,26 @@ $rect <589,91,789,131>
 $output false
 class MainView : Core::Group
 {
-  $rect <840,472,1040,512>
+  $rect <840,470,1040,510>
   inherited property Bounds = <0,0,800,450>;
 
-  $rect <1070,472,1270,512>
+  $rect <20,20,160,60>
+  object Views::Rectangle Rectangle
+  {
+    preset Bounds = <0,0,100,450>;
+    preset Color = #000000C9;
+    preset Visible = false;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Rectangle Rectangle1
+  {
+    preset Bounds = <700,0,800,450>;
+    preset Color = #000000C9;
+    preset Visible = false;
+  }
+
+  $rect <1290,460,1490,500>
   slot EnterQuickMenu
   {
     Application::Device.MainViewElement = false;
@@ -98,7 +114,7 @@ class MainView : Core::Group
   $rect <20,20,160,60>
   object Views::Rectangle SDBackground
   {
-    preset Bounds = <39,38,119,88>;
+    preset Bounds = <30,38,110,88>;
   }
 
   $rect <20,20,160,60>
@@ -112,7 +128,7 @@ class MainView : Core::Group
   object Views::Image ModeIcon
   {
     preset StackingPriority = 3;
-    preset Bounds = <292,345,367,417>;
+    preset Bounds = <279,343,354,415>;
     preset Quality = true;
     preset FrameNumber = 2;
     preset Bitmap = Application::SymbolIconsLarge;
@@ -122,13 +138,13 @@ class MainView : Core::Group
   $rect <20,20,160,60>
   object Views::Text SD
   {
-    preset Bounds = <39,44,119,83>;
+    preset Bounds = <30,44,110,83>;
     preset String = "SD";
     preset Font = Resources::FontLarge;
     preset Color = #000000FF;
   }
 
-  $rect <840,810,1040,850>
+  $rect <1049,919,1249,959>
   slot ElementVisiable_Slot
   {
     if(Application::Device.MainViewElement)
@@ -138,14 +154,14 @@ class MainView : Core::Group
       Application::Device.MainViewElement = true;
   }
 
-  $rect <1070,512,1270,552>
+  $rect <1290,500,1490,540>
   slot EnterAlbum
   {
     Application::Device.MainViewElement = false;
     PresentDialog( AlbumView, Effects::SlideRightCentered, null, null, null, null, null, null, null, false );
   }
 
-  $rect <1069,629,1269,669>
+  $rect <1290,580,1490,620>
   slot EnterSetSpec
   {
     Application::Device.MainViewElement = false;
@@ -185,10 +201,12 @@ class MainView : Core::Group
 
   }
 
-  $rect <1070,552,1270,592>
+  $rect <1291,540,1491,580>
   slot EnterSetParam
   {
     Application::Device.MainViewElement = false;
+    Parameter.GridTemp = Application::Device.Grid;
+    Application::Device.Grid = false;
     PresentDialog( Parameter, Effects::SlideLeftCentered, null, null, null, null, null, null, null, false );
   }
 
@@ -206,7 +224,7 @@ class MainView : Core::Group
   $rect <20,20,160,60>
   object Core::SlideTouchHandler SlideTouchHandler
   {
-    preset Bounds = <124,125,676,326>;
+    preset Bounds = <158,124,655,327>;
     preset OnSlide = SelectMode;
     preset RetargetCondition = Core::RetargetReason[ForeignPress];
   }
@@ -225,20 +243,26 @@ class MainView : Core::Group
     preset RetargetCondition = Core::RetargetReason[WipeDown, WipeLeft, WipeRight, WipeUp];
   }
 
-  $rect <1069,589,1269,629>
+  $rect <1290,620,1490,660>
   slot SelectMode
   {
+    SwitchMode.GridTemp = Application::Device.Grid;
+    Application::Device.Grid = false;
+
     Application::Device.MainViewElement = false;
+
     PresentDialog( SwitchMode, null, null, null, null, null, null, null, null, false );
+
     SwitchMode.TouchTimer.Enabled = true;
-    SwitchMode.HorizontalList.ScrollOffset = -160 * Application::Device.Mode;
+    //SwitchMode.HorizontalList.ScrollOffset = -160 * Application::Device.Mode;
   }
 
   $rect <20,20,160,60>
-  object WidgetSet::PushButton Zoom
+  object WidgetSet::PushButton ZoomBtn
   {
-    preset Bounds = <27,329,132,429>;
+    preset Bounds = <30,330,130,430>;
     preset Enabled = true;
+    preset OnPress = SetZoom;
     preset Icon = Application::BtnCircle;
     preset Label = "1x";
     preset Appearance = Application::PushButtonConfig;
@@ -247,7 +271,7 @@ class MainView : Core::Group
   $rect <20,20,160,60>
   object WidgetSet::PushButton Setting
   {
-    preset Bounds = <237,329,564,429>;
+    preset Bounds = <237,330,564,430>;
     preset OnLeave = EnterSetSpec;
     preset OnPress = ElementVisiable_Slot;
     preset Icon = Application::BtnCapsule;
@@ -256,23 +280,16 @@ class MainView : Core::Group
   }
 
   $rect <20,20,160,60>
-  object WidgetSet::PushButton FOV
+  object WidgetSet::PushButton AngleBtn
   {
-    preset Bounds = <671,329,777,429>;
+    preset Bounds = <670,330,770,430>;
+    preset OnPress = SetAngle;
     preset Icon = Application::BtnCircle;
-    preset Label = "광각";
+    preset Label = "표준";
     preset Appearance = Application::PushButtonConfig;
   }
 
-  $rect <20,20,160,60>
-  object Views::Text Text
-  {
-    preset Bounds = <395,361,511,401>;
-    preset String = "8K 60";
-    preset Font = Resources::FontExtraLarge;
-  }
-
-  $rect <840,529,1040,569>
+  $rect <840,540,1040,580>
   object Core::PropertyObserver ModeObserver
   {
     preset OnEvent = onEvent;
@@ -281,10 +298,12 @@ class MainView : Core::Group
 
   // This slot method is executed when the associated property observer 'PropertyObserver' \
   // is notified.
-  $rect <840,569,1040,609>
+  $rect <840,620,1040,660>
   slot onEvent
   {
-    ModeIcon.FrameNumber = (Application::Device.Mode+2)%6;      
+    ModeIcon.FrameNumber = (Application::Device.Mode+2)%6;
+    SelectSpec();
+    SelectGrid();
   }
 
   $rect <20,20,160,60>
@@ -313,30 +332,36 @@ class MainView : Core::Group
     preset Bounds = <-800,0,0,450>;
   }
 
-  $rect <1280,810,1480,850>
+  $rect <1269,919,1469,959>
   method void VisibleTrue()
   {
     SD.Visible = true;
     SDBackground.Visible = true;
     Battery.Visible = true;
-    FOV.Visible = true;
-    Zoom.Visible = true;
+    AngleBtn.Visible = true;
+    ZoomBtn.Visible = true;
     Setting.Visible = true;
     ModeIcon.Visible = true;
-    Text.Visible = true;            
+    Text.Visible = true;
+
+    if(isAngle43()){
+      Rectangle.Visible = true;
+      Rectangle1.Visible = true;      
+    }
   }
 
-  $rect <1280,850,1480,890>
+  $rect <1269,959,1469,999>
   method void VisibleFalse()
   {
     SD.Visible = false;
     SDBackground.Visible = false;
     Battery.Visible = false;
-    FOV.Visible = false;
-    Zoom.Visible = false;
+    AngleBtn.Visible = false;
+    ZoomBtn.Visible = false;
     Setting.Visible = false;
     ModeIcon.Visible = false;
     Text.Visible = false;
+
   }
 
   $rect <20,20,160,60>
@@ -375,22 +400,31 @@ class MainView : Core::Group
     preset Bounds = <0,450,800,900>;
   }
 
-  $rect <1060,699,1260,739>
-  method void GridTrue()
+  $rect <1258,849,1458,889>
+  method void Grid169True()
   {
     Line.Visible = true;
     Line1.Visible = true;
     Line2.Visible = true;
-    Line3.Visible = true;               
+    Line3.Visible = true;
+
+    Line4.Visible = false;
+    Line5.Visible = false;
+    Line6.Visible = false;
+    Line7.Visible = false;               
   }
 
-  $rect <1060,739,1260,779>
+  $rect <1049,849,1249,889>
   method void GridFalse()
   {
     Line.Visible = false;
     Line1.Visible = false;
     Line2.Visible = false;
     Line3.Visible = false;
+    Line4.Visible = false;
+    Line5.Visible = false;
+    Line6.Visible = false;
+    Line7.Visible = false;
   }
 
   $rect <20,20,160,60>
@@ -425,7 +459,7 @@ class MainView : Core::Group
     preset Visible = false;
   }
 
-  $rect <840,700,1040,740>
+  $rect <829,809,1029,849>
   object Core::PropertyObserver GridObserver
   {
     preset OnEvent = onEvent1;
@@ -434,15 +468,13 @@ class MainView : Core::Group
 
   // This slot method is executed when the associated property observer 'PropertyObserver' \
   // is notified.
-  $rect <843,740,1043,780>
+  $rect <832,849,1032,889>
   slot onEvent1
   {
-    if(Application::Device.Grid == true)
-      GridTrue();
-    else GridFalse();
+    SelectGrid();      
   }
 
-  $rect <1060,810,1260,850>
+  $rect <829,919,1029,959>
   object Core::PropertyObserver ElementObserver
   {
     preset OnEvent = onEvent2;
@@ -451,7 +483,7 @@ class MainView : Core::Group
 
   // This slot method is executed when the associated property observer 'PropertyObserver' \
   // is notified.
-  $rect <1060,850,1260,890>
+  $rect <829,959,1029,999>
   slot onEvent2
   {
     if(Application::Device.MainViewElement == true)
@@ -459,7 +491,7 @@ class MainView : Core::Group
     else VisibleFalse();
   }
 
-  $rect <840,930,1040,970>
+  $rect <829,1039,1029,1079>
   object Core::PropertyObserver ScreenLockObserver
   {
     preset OnEvent = onEvent3;
@@ -468,7 +500,7 @@ class MainView : Core::Group
 
   // This slot method is executed when the associated property observer 'PropertyObserver' \
   // is notified.
-  $rect <840,970,1040,1010>
+  $rect <829,1079,1029,1119>
   slot onEvent3
   {
     if(Application::Device.ScreenLock){
@@ -483,6 +515,352 @@ class MainView : Core::Group
     preset Bounds = <0,-450,800,0>;
   }
 
+  $rect <840,580,1040,620>
+  object Core::PropertyObserver SpecObserver
+  {
+    preset OnEvent = onEvent;
+    preset Outlet = ^Application::Device.SpecUpdate;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Text Text
+  {
+    preset Bounds = <354,360,534,400>;
+    preset String = "8K 60";
+    preset Font = Application::MyFont;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Line Line4
+  {
+    preset Point2 = <299,450>;
+    preset Point1 = <299,0>;
+    preset Visible = false;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Line Line5
+  {
+    preset Point2 = <500,450>;
+    preset Point1 = <500,0>;
+    preset Visible = false;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Line Line6
+  {
+    preset Point2 = <100,150>;
+    preset Point1 = <699,150>;
+    preset Visible = false;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Line Line7
+  {
+    preset Point2 = <100,300>;
+    preset Point1 = <699,300>;
+    preset Visible = false;
+  }
+
+  $rect <829,1229,1029,1269>
+  slot SetZoom
+  {
+    Application::Device.MainViewElement = false;
+    Zoom.GridTemp = Application::Device.Grid;
+    Application::Device.Grid = false;
+    PresentDialog( Zoom, Effects::SlideRightCentered, null, null, null, null, null, null, null, false );
+  }
+
+  $rect <20,20,160,60>
+  object Application::Zoom Zoom
+  {
+    preset Bounds = <-800,1,0,450>;
+  }
+
+  $rect <20,20,160,60>
+  object Application::Angle Angle
+  {
+    preset Bounds = <800,1,1600,450>;
+  }
+
+  $rect <1098,1229,1298,1269>
+  slot SetAngle
+  {
+    Application::Device.MainViewElement = false;
+    Angle.GridTemp = Application::Device.Grid;
+    Application::Device.Grid = false;
+    PresentDialog( Angle, Effects::SlideLeftCentered, null, null, null, null, null, null, null, false );
+  }
+
+  $rect <829,1149,1029,1189>
+  object Core::PropertyObserver ZoomObserver
+  {
+    preset OnEvent = onEvent4;
+    preset Outlet = ^Application::Device.Zoom;
+  }
+
+  // This slot method is executed when the associated property observer 'PropertyObserver' \
+  // is notified.
+  $rect <829,1189,1029,1229>
+  slot onEvent4
+  {
+    array string text[3];
+    text[0] = "x1";
+    text[1] = "x2";
+    text[2] = "x3";
+    ZoomBtn.Label = text[Application::Device.Zoom];
+  }
+
+  $rect <1097,1149,1297,1189>
+  object Core::PropertyObserver AngleObserver
+  {
+    preset OnEvent = onEvent5;
+    preset Outlet = ^Application::Device.Angle;
+  }
+
+  // This slot method is executed when the associated property observer 'PropertyObserver' \
+  // is notified.
+  $rect <1097,1189,1297,1229>
+  slot onEvent5
+  {
+    array string text[3];
+    text[0] = "표준";
+    text[1] = "광각";
+    text[2] = "초광각";
+    AngleBtn.Label = text[Application::Device.Angle];
+  }
+
+  $rect <1258,809,1458,849>
+  method void Grid43True()
+  {
+    Line.Visible = false;
+    Line1.Visible = false;
+    Line2.Visible = false;
+    Line3.Visible = false;
+
+    Line4.Visible = true;
+    Line5.Visible = true;
+    Line6.Visible = true;
+    Line7.Visible = true;               
+  }
+
+  $rect <1049,809,1249,849>
+  method void SelectGrid()
+  {
+    switch(Application::Device.Mode){
+      case 0:{
+        if(Application::Device.VideoRatio && Application::Device.Grid)
+          Grid43True();
+        else if(!Application::Device.VideoRatio && Application::Device.Grid)
+          Grid169True();
+        else
+          GridFalse();
+      }
+      case 1:{
+        if(Application::Device.TLRatio && Application::Device.Grid)
+          Grid43True();
+        else if(!Application::Device.TLRatio && Application::Device.Grid)
+          Grid169True();
+        else
+          GridFalse();
+      }
+      case 2:{
+        if(Application::Device.HLRatio && Application::Device.Grid)
+          Grid43True();
+        else if(!Application::Device.HLRatio && Application::Device.Grid)
+          Grid169True();
+        else
+          GridFalse();
+      }
+      case 3:{
+        if(Application::Device.SMRatio && Application::Device.Grid)
+          Grid43True();
+        else if(!Application::Device.SMRatio && Application::Device.Grid)
+          Grid169True();
+        else
+          GridFalse();
+      }
+      case 4:{
+        if(Application::Device.BurstRatio && Application::Device.Grid)
+          Grid43True();
+        else if(!Application::Device.BurstRatio && Application::Device.Grid)
+          Grid169True();
+        else
+          GridFalse();
+      }
+      case 5:{
+        if(Application::Device.PhotoRatio && Application::Device.Grid)
+          Grid43True();
+        else if(!Application::Device.PhotoRatio && Application::Device.Grid)
+          Grid169True();
+        else
+          GridFalse();
+      }
+      default: ;
+    }
+  }
+
+  $rect <1060,620,1260,660>
+  method void SelectSpec()
+  {
+    array string resolution[4];
+    resolution[0] = "8K";
+    resolution[1] = "4K";
+    resolution[2] = "2.7K";
+    resolution[3] = "1080p";
+
+    array string FrameRate[6];
+    FrameRate[0] = "60";
+    FrameRate[1] = "50";
+    FrameRate[2] = "48";
+    FrameRate[3] = "30";
+    FrameRate[4] = "25";
+    FrameRate[5] = "24";
+
+
+    array string duration[8];
+    duration[0] = "0.5s";
+    duration[1] = "1s";
+    duration[2] = "2s";
+    duration[3] = "5s";
+    duration[4] = "10s";
+    duration[5] = "30s";
+    duration[6] = "60s";
+    duration[7] = "120s";
+
+    array string PhotoResolution[2];
+    PhotoResolution[0] = "48MP";
+    PhotoResolution[1] = "12MP";
+
+    array string BurstRate[9];
+    BurstRate[0] = "3p/1s";
+    BurstRate[1] = "5p/1s";
+    BurstRate[2] = "10p/1s";
+    BurstRate[3] = "15p/1s";
+    BurstRate[4] = "30p/1s";
+    BurstRate[5] = "10p/3s";
+    BurstRate[6] = "30p/3s";
+    BurstRate[7] = "30p/6s";
+    BurstRate[8] = "30p/10s";
+
+    switch(Application::Device.Mode){ 
+      case 0:{
+        Text.String = resolution[Application::Device.VideoResolution] + " " + FrameRate[Application::Device.VideoFrameRate];
+        if(Application::Device.VideoRatio){
+          Rectangle.Visible = true;
+          Rectangle1.Visible = true;
+        }
+        else{
+          Rectangle.Visible = false;
+          Rectangle1.Visible = false;
+        }
+      }
+      case 1:{
+        Text.String = "4K " + duration[Application::Device.TLDuration];
+        if(Application::Device.TLRatio){
+          Rectangle.Visible = true;
+          Rectangle1.Visible = true;
+        }  
+        else{
+          Rectangle.Visible = false;
+          Rectangle1.Visible = false;
+        }
+      }
+      case 2:{
+        Text.String = "4K 30";
+        if(Application::Device.HLRatio){
+          Rectangle.Visible = true;
+          Rectangle1.Visible = true;
+        }    
+        else{
+          Rectangle.Visible = false;
+          Rectangle1.Visible = false;
+        }
+      }
+      case 3:{
+        Text.String = resolution[Application::Device.SMResolution] + " " + FrameRate[Application::Device.SMFrameRate];
+        if(Application::Device.SMRatio){
+          Rectangle.Visible = true;
+          Rectangle1.Visible = true;
+        }    
+        else{
+          Rectangle.Visible = false;
+          Rectangle1.Visible = false;
+        } 
+      }
+      case 4:{
+        Text.String = "12MP " + BurstRate[Application::Device.BurstRate];
+        if(Application::Device.VideoRatio){
+          Rectangle.Visible = true;
+          Rectangle1.Visible = true;
+        }   
+        else{
+          Rectangle.Visible = false;
+          Rectangle1.Visible = false;
+        }
+      }
+      case 5:{
+        Text.String = PhotoResolution[Application::Device.PhotoResolution];
+        if(Application::Device.PhotoRatio){
+          Rectangle.Visible = true;
+          Rectangle1.Visible = true;
+        }  
+        else{
+          Rectangle.Visible = false;
+          Rectangle1.Visible = false;
+        }
+      }
+      default: ;   
+    }
+  }
+
+  $rect <1060,720,1260,760>
+  method bool isAngle43()
+  {
+    switch(Application::Device.Mode){
+      case 0:{
+        if(Application::Device.VideoRatio)
+          return true;
+        else
+          return false;
+      }
+      case 1:{
+        if(Application::Device.TLRatio)
+          return true;
+        else
+          return false;
+      }
+      case 2:{
+        if(Application::Device.HLRatio)
+          return true;
+        else
+          return false;
+      }
+      case 3:{
+        if(Application::Device.SMRatio)
+          return true;
+        else
+          return false;
+      }
+      case 4:{
+        if(Application::Device.BurstRatio)
+          return true;
+        else
+          return false;
+      }
+      case 5:{
+        if(Application::Device.PhotoRatio)
+          return true;
+        else
+          return false;
+      }
+      default: ;
+    }
+    return 0;
+  }
+
+  $reorder Rectangle 4
+  $reorder Rectangle1 4
   $reorder EnterQuickMenu 4
   $reorder SDBackground 4
   $reorder Battery 4
@@ -496,10 +874,9 @@ class MainView : Core::Group
   $reorder SlideTouchHandler 4
   $reorder ScreenTouchHandler 4
   $reorder SelectMode 4
-  $reorder Zoom 4
+  $reorder ZoomBtn 4
   $reorder Setting 4
-  $reorder FOV 4
-  $reorder Text 4
+  $reorder AngleBtn 4
   $reorder ModeObserver 4
   $reorder onEvent 4
   $reorder SwitchMode 4
@@ -516,7 +893,7 @@ class MainView : Core::Group
   $reorder SMSpec 3
 }
 
-$rect <849,151,1049,191>
+$rect <689,151,889,191>
 $output false
 class QuickMenu : Core::Group
 {
@@ -849,12 +1226,12 @@ class QuickMenu : Core::Group
   }
 }
 
-$rect <589,151,789,191>
+$rect <478,151,678,191>
 $output false
 class Parameter : Core::Group
 {
   $rect <0,490,200,530>
-  inherited property Bounds = <0,0,800,450>;
+  inherited property Bounds = <0,0,800,449>;
 
   $rect <20,20,160,60>
   object Core::WipeTouchHandler WipeTouchHandler
@@ -870,6 +1247,7 @@ class Parameter : Core::Group
     if(Owner != null)
       Owner.DismissDialog( this, Effects::SlideRightCentered, null, null, null, null, false );
     Application::Device.MainViewElement = true;
+    Application::Device.Grid = GridTemp;
   }
 
   $rect <20,20,160,60>
@@ -904,39 +1282,86 @@ class Parameter : Core::Group
   $rect <430,490,630,530>
   slot SetAuto
   {
-    Rectangle1.Color = #009AFFFF;
-    Rectangle2.Color = #000000FF;
+    isAuto = true;
+  }
 
-    MCR.Visible = false;
-    ISO.Visible = false;
-    MS.Visible = false;
-    SS.Visible = false;
-    MWB.Visible = false;
+  $rect <20,20,160,60>
+  object WidgetSet::PushButton Auto
+  {
+    preset Bounds = <502,44,633,79>;
+    preset OnPress = SetAuto;
+    preset Label = "자동";
+    preset Appearance = Application::PushButtonConfig;
+  }
 
-    ACR.Visible = true;
-    EV.Visible = true;
-    PM.Visible = true;
-    AS.Visible = true;
-    AWB.Visible = true;
+  $rect <20,20,160,60>
+  object WidgetSet::PushButton ACR
+  {
+    preset Bounds = <509,98,627,204>;
+    preset Visible = true;
+    preset OnPress = btnSlot;
+    preset Icon = Application::BtnCircle;
+    preset Label = "Color\nRecipe";
+    preset Appearance = Application::PushButtonConfig;
+  }
+
+  $rect <20,20,160,60>
+  object WidgetSet::PushButton EV
+  {
+    preset Bounds = <643,98,758,204>;
+    preset Visible = true;
+    preset OnPress = btnSlot1;
+    preset Icon = Application::BtnCircle;
+    preset Label = "EV";
+    preset Appearance = Application::PushButtonConfig;
+  }
+
+  $rect <20,20,160,60>
+  object WidgetSet::PushButton MM
+  {
+    preset Bounds = <509,204,627,315>;
+    preset Visible = true;
+    preset OnPress = btnSlot2;
+    preset Icon = Application::BtnCircle;
+    preset Label = "Metering mode";
+    preset Appearance = Application::PushButtonConfig;
+  }
+
+  $rect <20,20,160,60>
+  object WidgetSet::PushButton AWB
+  {
+    preset Bounds = <643,204,758,315>;
+    preset Visible = true;
+    preset OnPress = btnSlot3;
+    preset Icon = Application::BtnCircle;
+    preset Label = "White balance";
+    preset Appearance = Application::PushButtonConfig;
+  }
+
+  $rect <20,20,160,60>
+  object WidgetSet::PushButton AS
+  {
+    preset Bounds = <510,315,627,426>;
+    preset Visible = true;
+    preset OnPress = btnSlot4;
+    preset Icon = Application::BtnCircle;
+    preset Label = "Sharpness";
+    preset Appearance = Application::PushButtonConfig;
   }
 
   $rect <430,530,630,570>
   slot SetManual
   {
-    Rectangle1.Color = #000000FF;
-    Rectangle2.Color = #009AFFFF;
+    isAuto = false;
+  }
 
-    MCR.Visible = true;
-    ISO.Visible = true;
-    MS.Visible = true;
-    SS.Visible = true;
-    MWB.Visible = true;
-
-    ACR.Visible = false;
-    EV.Visible = false;
-    PM.Visible = false;
-    AS.Visible = false;
-    AWB.Visible = false;
+  $rect <20,20,160,60>
+  object WidgetSet::PushButton Manual
+  {
+    preset Bounds = <633,44,765,79>;
+    preset OnPress = SetManual;
+    preset Label = "수동";
+    preset Appearance = Application::PushButtonConfig;
   }
 
   $rect <20,20,160,60>
@@ -947,28 +1372,6 @@ class Parameter : Core::Group
     preset OnPress = btnSlot5;
     preset Icon = Application::BtnCircle;
     preset Label = "Color\nRecipe";
-    preset Appearance = Application::PushButtonConfig;
-  }
-
-  $rect <20,20,160,60>
-  object WidgetSet::PushButton MWB
-  {
-    preset Bounds = <643,204,758,315>;
-    preset Visible = false;
-    preset OnPress = btnSlot8;
-    preset Icon = Application::BtnCircle;
-    preset Label = "White balance";
-    preset Appearance = Application::PushButtonConfig;
-  }
-
-  $rect <20,20,160,60>
-  object WidgetSet::PushButton MS
-  {
-    preset Bounds = <510,315,627,426>;
-    preset Visible = false;
-    preset OnPress = btnSlot9;
-    preset Icon = Application::BtnCircle;
-    preset Label = "Sharpness";
     preset Appearance = Application::PushButtonConfig;
   }
 
@@ -995,74 +1398,24 @@ class Parameter : Core::Group
   }
 
   $rect <20,20,160,60>
-  object WidgetSet::PushButton Auto
-  {
-    preset Bounds = <502,44,633,79>;
-    preset OnPress = SetAuto;
-    preset Label = "자동";
-    preset Appearance = Application::PushButtonConfig;
-  }
-
-  $rect <20,20,160,60>
-  object WidgetSet::PushButton Manual
-  {
-    preset Bounds = <633,44,765,79>;
-    preset OnPress = SetManual;
-    preset Label = "수동";
-    preset Appearance = Application::PushButtonConfig;
-  }
-
-  $rect <20,20,160,60>
-  object WidgetSet::PushButton ACR
-  {
-    preset Bounds = <509,98,627,204>;
-    preset Visible = true;
-    preset Icon = Application::BtnCircle;
-    preset Label = "Color\nRecipe";
-    preset Appearance = Application::PushButtonConfig;
-  }
-
-  $rect <20,20,160,60>
-  object WidgetSet::PushButton AWB
+  object WidgetSet::PushButton MWB
   {
     preset Bounds = <643,204,758,315>;
-    preset Visible = true;
-    preset OnPress = btnSlot3;
+    preset Visible = false;
+    preset OnPress = btnSlot8;
     preset Icon = Application::BtnCircle;
     preset Label = "White balance";
     preset Appearance = Application::PushButtonConfig;
   }
 
   $rect <20,20,160,60>
-  object WidgetSet::PushButton AS
+  object WidgetSet::PushButton MS
   {
     preset Bounds = <510,315,627,426>;
-    preset Visible = true;
-    preset OnPress = btnSlot4;
+    preset Visible = false;
+    preset OnPress = btnSlot9;
     preset Icon = Application::BtnCircle;
     preset Label = "Sharpness";
-    preset Appearance = Application::PushButtonConfig;
-  }
-
-  $rect <20,20,160,60>
-  object WidgetSet::PushButton EV
-  {
-    preset Bounds = <643,98,758,204>;
-    preset Visible = true;
-    preset OnPress = btnSlot1;
-    preset Icon = Application::BtnCircle;
-    preset Label = "EV";
-    preset Appearance = Application::PushButtonConfig;
-  }
-
-  $rect <20,20,160,60>
-  object WidgetSet::PushButton PM
-  {
-    preset Bounds = <509,204,627,315>;
-    preset Visible = true;
-    preset OnPress = btnSlot2;
-    preset Icon = Application::BtnCircle;
-    preset Label = "Photometric mode";
     preset Appearance = Application::PushButtonConfig;
   }
 
@@ -1208,55 +1561,42 @@ class Parameter : Core::Group
   // This method is called by 'VerticalList' every time the list loads or updates \
   // an item.
   $rect <420,610,620,650>
-  slot OnLoadPMItem
+  slot OnLoadMMItem
   {
-    /*
-
-      Hint:
-
-      - The code below demonstrates a simple usage of the list component.
-
-      - The list component creates and manages automatically view item instances of
-        the class specified in its property 'ItemClass'. In this example it is the
-        class 'Views::Text'.
-
-      - When you change the 'ItemClass' property you will also need to replace
-        accordingly all 'Views::Text' occurrences in the below code.
-
-      - You will also need to adapt the initialization of the 'itemView'.
-
-    */
-
     // Get the number of the item to load. The list component takes care of the
     // creation of the corresponding item view. Just access it ...
-    var int32       itemNo   = ACRList.Item;
-    var Views::Text itemView = (Views::Text)ACRList.View;
+    var int32       itemNo   = MMList.Item;
+    var Views::Text itemView = (Views::Text)MMList.View;
 
     // The implementation of this slot method does not match the item class
     // specified in the associated list component. Or the slot method is not
     // called in context of the OnLoadItem list operation. 
     if ( itemView == null )
       return;
-
+    array string myitem[4];
+    myitem[0] = "평균 측광";
+    myitem[1] = "중앙 측광";
+    myitem[2] = "스팟 측광";
+    myitem[3] = "부분 측광";
     // Configure the item view ...
-    itemView.String = string( itemNo ) + "분";
-    itemView.Font   = Application::MyFont2;
+    itemView.String = myitem[itemNo];
+    itemView.Font   = Application::MyFont;
     itemView.Color  = #FFFFFFFF;
 
     // Ensure that the item has correct size. The position of the item will be
     // managed by the list component.
-    itemView.Bounds.size = point( ACRList.Bounds.w, ACRList.ItemHeight );
+    itemView.Bounds.size = point( MMList.Bounds.w, MMList.ItemHeight );
   }
 
   $rect <420,650,620,690>
-  slot SetPM
+  slot SetMM
   {
-    var int32 centerPosition = 125;
+    var int32 centerPosition = 225;
 
     var int32 i;
 
-    for (i = 0; i < ACRList.NoOfItems; i++){
-      var Views::Text itemView = (Views::Text)ACRList.GetViewForItem(i);
+    for (i = 0; i < MMList.NoOfItems; i++){
+      var Views::Text itemView = (Views::Text)MMList.GetViewForItem(i);
 
       // 아이템이 현재 화면에 보이는 경우에만
       if (itemView != null){
@@ -1269,7 +1609,7 @@ class Parameter : Core::Group
           // 중앙에 가까운 아이템은 색상을 하늘색으로, 나머지는 하얀색으로
           if (distanceFromCenter >= -20 && distanceFromCenter <= 20){
               itemView.Color = #77CCFFFF;  // 하늘색
-              Application::Device.Minute = i;
+              Application::Device.AutoMeteringMode = i;
           }
           else{
               itemView.Color = #FFFFFFFF;  // 기본 하얀색
@@ -1283,27 +1623,7 @@ class Parameter : Core::Group
   $rect <630,610,830,650>
   slot OnLoadAWBItem
   {
-    /*
-
-      Hint:
-
-      - The code below demonstrates a simple usage of the list component.
-
-      - The list component creates and manages automatically view item instances of
-        the class specified in its property 'ItemClass'. In this example it is the
-        class 'Views::Text'.
-
-      - When you change the 'ItemClass' property you will also need to replace
-        accordingly all 'Views::Text' occurrences in the below code.
-
-      - You will also need to adapt the initialization of the 'itemView'.
-
-    */
-
-    // Get the number of the item to load. The list component takes care of the
-    // creation of the corresponding item view. Just access it ...
-    var int32       itemNo   = ACRList.Item;
-    var Views::Text itemView = (Views::Text)ACRList.View;
+    var Views::Text itemView = (Views::Text)AWBList.View;
 
     // The implementation of this slot method does not match the item class
     // specified in the associated list component. Or the slot method is not
@@ -1311,25 +1631,26 @@ class Parameter : Core::Group
     if ( itemView == null )
       return;
 
+    var string myitem = "자동";
     // Configure the item view ...
-    itemView.String = string( itemNo ) + "분";
-    itemView.Font   = Application::MyFont2;
+    itemView.String = myitem;
+    itemView.Font   = Application::MyFont;
     itemView.Color  = #FFFFFFFF;
 
     // Ensure that the item has correct size. The position of the item will be
     // managed by the list component.
-    itemView.Bounds.size = point( ACRList.Bounds.w, ACRList.ItemHeight );
+    itemView.Bounds.size = point( AWBList.Bounds.w, AWBList.ItemHeight );
   }
 
-  $rect <631,650,831,690>
+  $rect <631,650,831,689>
   slot SetAWB
   {
-    var int32 centerPosition = 125;
+    var int32 centerPosition = 225;
 
     var int32 i;
 
-    for (i = 0; i < ACRList.NoOfItems; i++){
-      var Views::Text itemView = (Views::Text)ACRList.GetViewForItem(i);
+    for (i = 0; i < AWBList.NoOfItems; i++){
+      var Views::Text itemView = (Views::Text)AWBList.GetViewForItem(i);
 
       // 아이템이 현재 화면에 보이는 경우에만
       if (itemView != null){
@@ -1342,7 +1663,7 @@ class Parameter : Core::Group
           // 중앙에 가까운 아이템은 색상을 하늘색으로, 나머지는 하얀색으로
           if (distanceFromCenter >= -20 && distanceFromCenter <= 20){
               itemView.Color = #77CCFFFF;  // 하늘색
-              Application::Device.Minute = i;
+              Application::Device.AutoWhiteBalance = i;
           }
           else{
               itemView.Color = #FFFFFFFF;  // 기본 하얀색
@@ -1356,27 +1677,10 @@ class Parameter : Core::Group
   $rect <840,610,1040,650>
   slot OnLoadASItem
   {
-    /*
-
-      Hint:
-
-      - The code below demonstrates a simple usage of the list component.
-
-      - The list component creates and manages automatically view item instances of
-        the class specified in its property 'ItemClass'. In this example it is the
-        class 'Views::Text'.
-
-      - When you change the 'ItemClass' property you will also need to replace
-        accordingly all 'Views::Text' occurrences in the below code.
-
-      - You will also need to adapt the initialization of the 'itemView'.
-
-    */
-
     // Get the number of the item to load. The list component takes care of the
     // creation of the corresponding item view. Just access it ...
-    var int32       itemNo   = ACRList.Item;
-    var Views::Text itemView = (Views::Text)ACRList.View;
+    var int32       itemNo   = ASList.Item;
+    var Views::Text itemView = (Views::Text)ASList.View;
 
     // The implementation of this slot method does not match the item class
     // specified in the associated list component. Or the slot method is not
@@ -1384,25 +1688,29 @@ class Parameter : Core::Group
     if ( itemView == null )
       return;
 
+    array string myitem[3];
+    myitem[0] = "낮음";
+    myitem[1] = "중간";
+    myitem[2] = "높음";
     // Configure the item view ...
-    itemView.String = string( itemNo ) + "분";
-    itemView.Font   = Application::MyFont2;
+    itemView.String = myitem[itemNo];
+    itemView.Font   = Application::MyFont;
     itemView.Color  = #FFFFFFFF;
 
     // Ensure that the item has correct size. The position of the item will be
     // managed by the list component.
-    itemView.Bounds.size = point( ACRList.Bounds.w, ACRList.ItemHeight );
+    itemView.Bounds.size = point( ASList.Bounds.w, ASList.ItemHeight );
   }
 
   $rect <841,650,1041,690>
   slot SetAS
   {
-    var int32 centerPosition = 125;
+    var int32 centerPosition = 225;
 
     var int32 i;
 
-    for (i = 0; i < ACRList.NoOfItems; i++){
-      var Views::Text itemView = (Views::Text)ACRList.GetViewForItem(i);
+    for (i = 0; i < ASList.NoOfItems; i++){
+      var Views::Text itemView = (Views::Text)ASList.GetViewForItem(i);
 
       // 아이템이 현재 화면에 보이는 경우에만
       if (itemView != null){
@@ -1415,7 +1723,7 @@ class Parameter : Core::Group
           // 중앙에 가까운 아이템은 색상을 하늘색으로, 나머지는 하얀색으로
           if (distanceFromCenter >= -20 && distanceFromCenter <= 20){
               itemView.Color = #77CCFFFF;  // 하늘색
-              Application::Device.Minute = i;
+              Application::Device.AutoSharpness = i;
           }
           else{
               itemView.Color = #FFFFFFFF;  // 기본 하얀색
@@ -1429,27 +1737,10 @@ class Parameter : Core::Group
   $rect <0,840,200,880>
   slot OnLoadMCRItem
   {
-    /*
-
-      Hint:
-
-      - The code below demonstrates a simple usage of the list component.
-
-      - The list component creates and manages automatically view item instances of
-        the class specified in its property 'ItemClass'. In this example it is the
-        class 'Views::Text'.
-
-      - When you change the 'ItemClass' property you will also need to replace
-        accordingly all 'Views::Text' occurrences in the below code.
-
-      - You will also need to adapt the initialization of the 'itemView'.
-
-    */
-
     // Get the number of the item to load. The list component takes care of the
     // creation of the corresponding item view. Just access it ...
-    var int32       itemNo   = ACRList.Item;
-    var Views::Text itemView = (Views::Text)ACRList.View;
+    var int32       itemNo   = MCRList.Item;
+    var Views::Text itemView = (Views::Text)MCRList.View;
 
     // The implementation of this slot method does not match the item class
     // specified in the associated list component. Or the slot method is not
@@ -1457,25 +1748,31 @@ class Parameter : Core::Group
     if ( itemView == null )
       return;
 
+    array string myitem[5];
+    myitem[0] = "표준";
+    myitem[1] = "비비드";
+    myitem[2] = "웜";
+    myitem[3] = "쿨";
+    myitem[4] = "레트로";
     // Configure the item view ...
-    itemView.String = string( itemNo ) + "분";
-    itemView.Font   = Application::MyFont2;
+    itemView.String = myitem[itemNo];
+    itemView.Font   = Application::MyFont;
     itemView.Color  = #FFFFFFFF;
 
     // Ensure that the item has correct size. The position of the item will be
     // managed by the list component.
-    itemView.Bounds.size = point( ACRList.Bounds.w, ACRList.ItemHeight );
+    itemView.Bounds.size = point( MCRList.Bounds.w, MCRList.ItemHeight );
   }
 
   $rect <0,880,200,920>
   slot SetMCR
   {
-    var int32 centerPosition = 125;
+    var int32 centerPosition = 225;
 
     var int32 i;
 
-    for (i = 0; i < ACRList.NoOfItems; i++){
-      var Views::Text itemView = (Views::Text)ACRList.GetViewForItem(i);
+    for (i = 0; i < MCRList.NoOfItems; i++){
+      var Views::Text itemView = (Views::Text)MCRList.GetViewForItem(i);
 
       // 아이템이 현재 화면에 보이는 경우에만
       if (itemView != null){
@@ -1488,7 +1785,7 @@ class Parameter : Core::Group
           // 중앙에 가까운 아이템은 색상을 하늘색으로, 나머지는 하얀색으로
           if (distanceFromCenter >= -20 && distanceFromCenter <= 20){
               itemView.Color = #77CCFFFF;  // 하늘색
-              Application::Device.Minute = i;
+              Application::Device.ManualColorRecipe = i;
           }
           else{
               itemView.Color = #FFFFFFFF;  // 기본 하얀색
@@ -1502,27 +1799,10 @@ class Parameter : Core::Group
   $rect <210,840,410,880>
   slot OnLoadSSItem
   {
-    /*
-
-      Hint:
-
-      - The code below demonstrates a simple usage of the list component.
-
-      - The list component creates and manages automatically view item instances of
-        the class specified in its property 'ItemClass'. In this example it is the
-        class 'Views::Text'.
-
-      - When you change the 'ItemClass' property you will also need to replace
-        accordingly all 'Views::Text' occurrences in the below code.
-
-      - You will also need to adapt the initialization of the 'itemView'.
-
-    */
-
     // Get the number of the item to load. The list component takes care of the
     // creation of the corresponding item view. Just access it ...
-    var int32       itemNo   = ACRList.Item;
-    var Views::Text itemView = (Views::Text)ACRList.View;
+    var int32       itemNo   = SSList.Item;
+    var Views::Text itemView = (Views::Text)SSList.View;
 
     // The implementation of this slot method does not match the item class
     // specified in the associated list component. Or the slot method is not
@@ -1530,25 +1810,34 @@ class Parameter : Core::Group
     if ( itemView == null )
       return;
 
+    array string myitem[8];
+    myitem[0] = "1/30";
+    myitem[1] = "1/60";
+    myitem[2] = "1/125";
+    myitem[3] = "1/250";
+    myitem[4] = "1/500";
+    myitem[5] = "1/1000";
+    myitem[6] = "1/2000";
+    myitem[7] = "1/4000";
     // Configure the item view ...
-    itemView.String = string( itemNo ) + "분";
-    itemView.Font   = Application::MyFont2;
+    itemView.String = myitem[itemNo];
+    itemView.Font   = Application::MyFont;
     itemView.Color  = #FFFFFFFF;
 
     // Ensure that the item has correct size. The position of the item will be
     // managed by the list component.
-    itemView.Bounds.size = point( ACRList.Bounds.w, ACRList.ItemHeight );
+    itemView.Bounds.size = point( SSList.Bounds.w, SSList.ItemHeight );
   }
 
   $rect <210,880,410,920>
   slot SetSS
   {
-    var int32 centerPosition = 125;
+    var int32 centerPosition = 225;
 
     var int32 i;
 
-    for (i = 0; i < ACRList.NoOfItems; i++){
-      var Views::Text itemView = (Views::Text)ACRList.GetViewForItem(i);
+    for (i = 0; i < SSList.NoOfItems; i++){
+      var Views::Text itemView = (Views::Text)SSList.GetViewForItem(i);
 
       // 아이템이 현재 화면에 보이는 경우에만
       if (itemView != null){
@@ -1561,7 +1850,7 @@ class Parameter : Core::Group
           // 중앙에 가까운 아이템은 색상을 하늘색으로, 나머지는 하얀색으로
           if (distanceFromCenter >= -20 && distanceFromCenter <= 20){
               itemView.Color = #77CCFFFF;  // 하늘색
-              Application::Device.Minute = i;
+              Application::Device.ManualShutterSpeed = i;
           }
           else{
               itemView.Color = #FFFFFFFF;  // 기본 하얀색
@@ -1575,27 +1864,10 @@ class Parameter : Core::Group
   $rect <420,840,620,880>
   slot OnLoadISOItem
   {
-    /*
-
-      Hint:
-
-      - The code below demonstrates a simple usage of the list component.
-
-      - The list component creates and manages automatically view item instances of
-        the class specified in its property 'ItemClass'. In this example it is the
-        class 'Views::Text'.
-
-      - When you change the 'ItemClass' property you will also need to replace
-        accordingly all 'Views::Text' occurrences in the below code.
-
-      - You will also need to adapt the initialization of the 'itemView'.
-
-    */
-
     // Get the number of the item to load. The list component takes care of the
     // creation of the corresponding item view. Just access it ...
-    var int32       itemNo   = ACRList.Item;
-    var Views::Text itemView = (Views::Text)ACRList.View;
+    var int32       itemNo   = ISOList.Item;
+    var Views::Text itemView = (Views::Text)ISOList.View;
 
     // The implementation of this slot method does not match the item class
     // specified in the associated list component. Or the slot method is not
@@ -1603,25 +1875,32 @@ class Parameter : Core::Group
     if ( itemView == null )
       return;
 
+    array string myitem[6];
+    myitem[0] = "100";
+    myitem[1] = "200";
+    myitem[2] = "400";
+    myitem[3] = "800";
+    myitem[4] = "1600";
+    myitem[5] = "3200";
     // Configure the item view ...
-    itemView.String = string( itemNo ) + "분";
-    itemView.Font   = Application::MyFont2;
+    itemView.String = myitem[itemNo];
+    itemView.Font   = Application::MyFont;
     itemView.Color  = #FFFFFFFF;
 
     // Ensure that the item has correct size. The position of the item will be
     // managed by the list component.
-    itemView.Bounds.size = point( ACRList.Bounds.w, ACRList.ItemHeight );
+    itemView.Bounds.size = point( ISOList.Bounds.w, ISOList.ItemHeight );
   }
 
   $rect <420,880,620,920>
   slot SetISO
   {
-    var int32 centerPosition = 125;
+    var int32 centerPosition = 225;
 
     var int32 i;
 
-    for (i = 0; i < ACRList.NoOfItems; i++){
-      var Views::Text itemView = (Views::Text)ACRList.GetViewForItem(i);
+    for (i = 0; i < ISOList.NoOfItems; i++){
+      var Views::Text itemView = (Views::Text)ISOList.GetViewForItem(i);
 
       // 아이템이 현재 화면에 보이는 경우에만
       if (itemView != null){
@@ -1634,7 +1913,7 @@ class Parameter : Core::Group
           // 중앙에 가까운 아이템은 색상을 하늘색으로, 나머지는 하얀색으로
           if (distanceFromCenter >= -20 && distanceFromCenter <= 20){
               itemView.Color = #77CCFFFF;  // 하늘색
-              Application::Device.Minute = i;
+              Application::Device.ManualISO = i;
           }
           else{
               itemView.Color = #FFFFFFFF;  // 기본 하얀색
@@ -1648,27 +1927,10 @@ class Parameter : Core::Group
   $rect <630,840,830,880>
   slot OnLoadMWBItem
   {
-    /*
-
-      Hint:
-
-      - The code below demonstrates a simple usage of the list component.
-
-      - The list component creates and manages automatically view item instances of
-        the class specified in its property 'ItemClass'. In this example it is the
-        class 'Views::Text'.
-
-      - When you change the 'ItemClass' property you will also need to replace
-        accordingly all 'Views::Text' occurrences in the below code.
-
-      - You will also need to adapt the initialization of the 'itemView'.
-
-    */
-
     // Get the number of the item to load. The list component takes care of the
     // creation of the corresponding item view. Just access it ...
-    var int32       itemNo   = ACRList.Item;
-    var Views::Text itemView = (Views::Text)ACRList.View;
+    var int32       itemNo   = MWBList.Item;
+    var Views::Text itemView = (Views::Text)MWBList.View;
 
     // The implementation of this slot method does not match the item class
     // specified in the associated list component. Or the slot method is not
@@ -1677,24 +1939,24 @@ class Parameter : Core::Group
       return;
 
     // Configure the item view ...
-    itemView.String = string( itemNo ) + "분";
-    itemView.Font   = Application::MyFont2;
+    itemView.String = string(itemNo*200+2000) + "K";
+    itemView.Font   = Application::MyFont;
     itemView.Color  = #FFFFFFFF;
 
     // Ensure that the item has correct size. The position of the item will be
     // managed by the list component.
-    itemView.Bounds.size = point( ACRList.Bounds.w, ACRList.ItemHeight );
+    itemView.Bounds.size = point( MWBList.Bounds.w, MWBList.ItemHeight );
   }
 
   $rect <631,880,831,920>
   slot SetMWB
   {
-    var int32 centerPosition = 125;
+    var int32 centerPosition = 225;
 
     var int32 i;
 
-    for (i = 0; i < ACRList.NoOfItems; i++){
-      var Views::Text itemView = (Views::Text)ACRList.GetViewForItem(i);
+    for (i = 0; i < MWBList.NoOfItems; i++){
+      var Views::Text itemView = (Views::Text)MWBList.GetViewForItem(i);
 
       // 아이템이 현재 화면에 보이는 경우에만
       if (itemView != null){
@@ -1707,7 +1969,7 @@ class Parameter : Core::Group
           // 중앙에 가까운 아이템은 색상을 하늘색으로, 나머지는 하얀색으로
           if (distanceFromCenter >= -20 && distanceFromCenter <= 20){
               itemView.Color = #77CCFFFF;  // 하늘색
-              Application::Device.Minute = i;
+              Application::Device.ManualWhiteBalance = i;
           }
           else{
               itemView.Color = #FFFFFFFF;  // 기본 하얀색
@@ -1721,27 +1983,10 @@ class Parameter : Core::Group
   $rect <840,840,1040,880>
   slot OnLoadMSItem
   {
-    /*
-
-      Hint:
-
-      - The code below demonstrates a simple usage of the list component.
-
-      - The list component creates and manages automatically view item instances of
-        the class specified in its property 'ItemClass'. In this example it is the
-        class 'Views::Text'.
-
-      - When you change the 'ItemClass' property you will also need to replace
-        accordingly all 'Views::Text' occurrences in the below code.
-
-      - You will also need to adapt the initialization of the 'itemView'.
-
-    */
-
     // Get the number of the item to load. The list component takes care of the
     // creation of the corresponding item view. Just access it ...
-    var int32       itemNo   = ACRList.Item;
-    var Views::Text itemView = (Views::Text)ACRList.View;
+    var int32       itemNo   = MSList.Item;
+    var Views::Text itemView = (Views::Text)MSList.View;
 
     // The implementation of this slot method does not match the item class
     // specified in the associated list component. Or the slot method is not
@@ -1749,25 +1994,29 @@ class Parameter : Core::Group
     if ( itemView == null )
       return;
 
+    array string myitem[3];
+    myitem[0] = "낮음";
+    myitem[1] = "중간";
+    myitem[2] = "높음";
     // Configure the item view ...
-    itemView.String = string( itemNo ) + "분";
-    itemView.Font   = Application::MyFont2;
+    itemView.String = myitem[itemNo];
+    itemView.Font   = Application::MyFont;
     itemView.Color  = #FFFFFFFF;
 
     // Ensure that the item has correct size. The position of the item will be
     // managed by the list component.
-    itemView.Bounds.size = point( ACRList.Bounds.w, ACRList.ItemHeight );
+    itemView.Bounds.size = point( MSList.Bounds.w, MSList.ItemHeight );
   }
 
   $rect <841,880,1041,920>
   slot SetMS
   {
-    var int32 centerPosition = 125;
+    var int32 centerPosition = 225;
 
     var int32 i;
 
-    for (i = 0; i < ACRList.NoOfItems; i++){
-      var Views::Text itemView = (Views::Text)ACRList.GetViewForItem(i);
+    for (i = 0; i < MSList.NoOfItems; i++){
+      var Views::Text itemView = (Views::Text)MSList.GetViewForItem(i);
 
       // 아이템이 현재 화면에 보이는 경우에만
       if (itemView != null){
@@ -1780,7 +2029,7 @@ class Parameter : Core::Group
           // 중앙에 가까운 아이템은 색상을 하늘색으로, 나머지는 하얀색으로
           if (distanceFromCenter >= -20 && distanceFromCenter <= 20){
               itemView.Color = #77CCFFFF;  // 하늘색
-              Application::Device.Minute = i;
+              Application::Device.ManualSharpness = i;
           }
           else{
               itemView.Color = #FFFFFFFF;  // 기본 하얀색
@@ -1808,7 +2057,7 @@ class Parameter : Core::Group
   object Core::SlideTouchHandler ACRSlide
   {
     preset Bounds = <627,0,800,450>;
-    preset SnapNext = <0,50>;
+    preset SnapNext = <0,100>;
     preset Enabled = false;
   }
 
@@ -1816,8 +2065,9 @@ class Parameter : Core::Group
   slot btnSlot
   {
     UnvisibleParamElement();
-    EVList.Visible = true;
-    EVSlide.Enabled = true;
+    ACRList.Visible = true;
+    ACRSlide.Enabled = true;
+    Text.Visible = true;
     SimpleTouchHandler.Enabled = true;
   }
 
@@ -1836,8 +2086,21 @@ class Parameter : Core::Group
     MS.Visible = false;
     MWB.Visible = false;
     Manual.Visible = false;
-    PM.Visible = false;
+    MM.Visible = false;
     SS.Visible = false;
+
+    ACR.Enabled = false;
+    AS.Enabled = false;
+    AWB.Enabled = false;
+    Auto.Enabled = false;
+    EV.Enabled = false;
+    ISO.Enabled = false;
+    MCR.Enabled = false;
+    MS.Enabled = false;
+    MWB.Enabled = false;
+    Manual.Enabled = false;
+    MM.Enabled = false;
+    SS.Enabled = false;
 
     Line.Visible = false;
     Rectangle.Visible = false;
@@ -1860,9 +2123,36 @@ class Parameter : Core::Group
   slot Quit
   {
     SimpleTouchHandler.Enabled = false;
+    Text.Visible = false;
 
     ACRList.Visible = false;
     ACRSlide.Enabled = false;
+
+    EVList.Visible = false;
+    EVSlide.Enabled = false;
+
+    MMList.Visible = false;
+    MMSlide.Enabled = false;
+
+    AWBList.Visible = false;
+
+    ASList.Visible = false;
+    ASSlide.Enabled = false;
+
+    MCRList.Visible = false;
+    MCRSlide.Enabled = false;
+
+    SSList.Visible = false;
+    SSSlide.Enabled = false;
+
+    ISOList.Visible = false;
+    ISOSlide.Enabled = false;
+
+    MWBList.Visible = false;
+    MWBSlide.Enabled = false;
+
+    MSList.Visible = false;
+    MSSlide.Enabled = false;
 
     VisibleParamElement();
   }
@@ -1872,18 +2162,40 @@ class Parameter : Core::Group
   {
     WipeTouchHandler.Enabled = true;
 
-    ACR.Visible = true;
-    AS.Visible = true;
-    AWB.Visible = true;
-    Auto.Visible = true;
-    EV.Visible = true;
-    ISO.Visible = true;
-    MCR.Visible = true;
-    MS.Visible = true;
-    MWB.Visible = true;
-    Manual.Visible = true;
-    PM.Visible = true;
-    SS.Visible = true;
+    if(isAuto){
+      ACR.Visible = true;
+      AS.Visible = true;
+      AWB.Visible = true;
+      Auto.Visible = true;
+      Manual.Visible = true;
+      EV.Visible = true;
+      MM.Visible = true;
+
+      ACR.Enabled = true;
+      AS.Enabled = true;
+      AWB.Enabled = true;
+      Auto.Enabled = true;
+      Manual.Enabled = true;
+      EV.Enabled = true;
+      MM.Enabled = true;
+    }
+    else{
+      ISO.Visible = true;
+      MCR.Visible = true;
+      MS.Visible = true;
+      MWB.Visible = true;
+      Manual.Visible = true;
+      Auto.Visible = true;
+      SS.Visible = true;
+      
+      ISO.Enabled = true;
+      MCR.Enabled = true;
+      MS.Enabled = true;
+      MWB.Enabled = true;
+      Manual.Enabled = true;
+      Auto.Enabled = true;
+      SS.Enabled = true;
+    }
 
     Line.Visible = true;
     Rectangle.Visible = true;
@@ -1911,7 +2223,10 @@ class Parameter : Core::Group
   object Core::SlideTouchHandler EVSlide
   {
     preset Bounds = <627,0,800,450>;
-    preset SnapNext = <0,50>;
+    preset Offset = <0,100>;
+    preset SnapNext = <0,100>;
+    preset RubberBandScrolling = false;
+    preset ResetSpace = -1;
     preset Enabled = false;
   }
 
@@ -1919,8 +2234,9 @@ class Parameter : Core::Group
   slot btnSlot1
   {
     UnvisibleParamElement();
-    ACRList.Visible = true;
-    ACRSlide.Enabled = true;
+    EVList.Visible = true;
+    EVSlide.Enabled = true;
+    Text.Visible = true;
     SimpleTouchHandler.Enabled = true;
   }
 
@@ -1928,8 +2244,9 @@ class Parameter : Core::Group
   slot btnSlot2
   {
     UnvisibleParamElement();
-    ACRList.Visible = true;
-    ACRSlide.Enabled = true;
+    MMList.Visible = true;
+    MMSlide.Enabled = true;
+    Text.Visible = true;
     SimpleTouchHandler.Enabled = true;
   }
 
@@ -1937,8 +2254,8 @@ class Parameter : Core::Group
   slot btnSlot3
   {
     UnvisibleParamElement();
-    ACRList.Visible = true;
-    ACRSlide.Enabled = true;
+    AWBList.Visible = true;
+    Text.Visible = true;
     SimpleTouchHandler.Enabled = true;
   }
 
@@ -1946,8 +2263,9 @@ class Parameter : Core::Group
   slot btnSlot4
   {
     UnvisibleParamElement();
-    ACRList.Visible = true;
-    ACRSlide.Enabled = true;
+    ASList.Visible = true;
+    ASSlide.Enabled = true;
+    Text.Visible = true;
     SimpleTouchHandler.Enabled = true;
   }
 
@@ -1955,8 +2273,9 @@ class Parameter : Core::Group
   slot btnSlot5
   {
     UnvisibleParamElement();
-    ACRList.Visible = true;
-    ACRSlide.Enabled = true;
+    MCRList.Visible = true;
+    MCRSlide.Enabled = true;
+    Text.Visible = true;
     SimpleTouchHandler.Enabled = true;
   }
 
@@ -1964,8 +2283,9 @@ class Parameter : Core::Group
   slot btnSlot6
   {
     UnvisibleParamElement();
-    ACRList.Visible = true;
-    ACRSlide.Enabled = true;
+    SSList.Visible = true;
+    SSSlide.Enabled = true;
+    Text.Visible = true;
     SimpleTouchHandler.Enabled = true;
   }
 
@@ -1973,8 +2293,9 @@ class Parameter : Core::Group
   slot btnSlot7
   {
     UnvisibleParamElement();
-    ACRList.Visible = true;
-    ACRSlide.Enabled = true;
+    ISOList.Visible = true;
+    ISOSlide.Enabled = true;
+    Text.Visible = true;
     SimpleTouchHandler.Enabled = true;
   }
 
@@ -1982,8 +2303,9 @@ class Parameter : Core::Group
   slot btnSlot8
   {
     UnvisibleParamElement();
-    ACRList.Visible = true;
-    ACRSlide.Enabled = true;
+    MWBList.Visible = true;
+    MWBSlide.Enabled = true;
+    Text.Visible = true;
     SimpleTouchHandler.Enabled = true;
   }
 
@@ -1991,9 +2313,274 @@ class Parameter : Core::Group
   slot btnSlot9
   {
     UnvisibleParamElement();
-    ACRList.Visible = true;
-    ACRSlide.Enabled = true;
+    MSList.Visible = true;
+    MSSlide.Enabled = true;
+    Text.Visible = true;
     SimpleTouchHandler.Enabled = true;
+  }
+
+  $rect <20,20,160,60>
+  object Core::VerticalList MMList
+  {
+    preset Bounds = <613,0,786,450>;
+    preset Enabled;
+    preset Visible = false;
+    preset OnUpdate = SetMM;
+    preset OnLoadItem = OnLoadMMItem;
+    preset PaddingBottom = 175;
+    preset SlideHandler = MMSlide;
+    preset ScrollOffset = 0;
+    preset PaddingTop = 175;
+    preset ItemHeight = 100;
+    preset NoOfItems = 4;
+  }
+
+  $rect <20,20,160,60>
+  object Core::SlideTouchHandler MMSlide
+  {
+    preset Bounds = <613,0,786,450>;
+    preset SnapNext = <0,100>;
+    preset Enabled = false;
+  }
+
+  $rect <20,20,160,60>
+  object Core::VerticalList AWBList
+  {
+    preset Bounds = <627,0,800,450>;
+    preset Enabled;
+    preset Visible = false;
+    preset OnUpdate = SetAWB;
+    preset OnLoadItem = OnLoadAWBItem;
+    preset PaddingBottom = 175;
+    preset SlideHandler = null;
+    preset ScrollOffset = 0;
+    preset PaddingTop = 175;
+    preset ItemHeight = 100;
+    preset NoOfItems = 1;
+  }
+
+  $rect <20,20,160,60>
+  object Core::VerticalList ASList
+  {
+    preset Bounds = <627,0,800,450>;
+    preset Enabled;
+    preset Visible = false;
+    preset OnUpdate = SetAS;
+    preset OnLoadItem = OnLoadASItem;
+    preset PaddingBottom = 175;
+    preset SlideHandler = ASSlide;
+    preset ScrollOffset = 0;
+    preset PaddingTop = 175;
+    preset ItemHeight = 100;
+    preset NoOfItems = 3;
+  }
+
+  $rect <20,20,160,60>
+  object Core::SlideTouchHandler ASSlide
+  {
+    preset Bounds = <627,0,800,450>;
+    preset SnapNext = <0,100>;
+    preset RubberBandScrolling = false;
+    preset Enabled = false;
+  }
+
+  $rect <20,20,160,60>
+  object Core::VerticalList MSList
+  {
+    preset Bounds = <627,-1,800,449>;
+    preset Enabled;
+    preset Visible = false;
+    preset OnUpdate = SetMS;
+    preset OnLoadItem = OnLoadMSItem;
+    preset PaddingBottom = 175;
+    preset SlideHandler = MSSlide;
+    preset ScrollOffset = 0;
+    preset PaddingTop = 175;
+    preset ItemHeight = 100;
+    preset NoOfItems = 3;
+  }
+
+  $rect <20,20,160,60>
+  object Core::SlideTouchHandler MSSlide
+  {
+    preset Bounds = <627,-1,800,449>;
+    preset SnapNext = <0,100>;
+    preset RubberBandScrolling = false;
+    preset Enabled = false;
+  }
+
+  $rect <20,20,160,60>
+  object Core::VerticalList MWBList
+  {
+    preset Bounds = <627,0,800,450>;
+    preset Enabled;
+    preset Visible = false;
+    preset OnUpdate = SetMWB;
+    preset OnLoadItem = OnLoadMWBItem;
+    preset PaddingBottom = 200;
+    preset SlideHandler = MWBSlide;
+    preset ScrollOffset = 0;
+    preset PaddingTop = 200;
+    preset ItemHeight = 50;
+    preset NoOfItems = 41;
+  }
+
+  $rect <20,20,160,60>
+  object Core::SlideTouchHandler MWBSlide
+  {
+    preset Bounds = <627,0,800,450>;
+    preset SnapNext = <0,50>;
+    preset RubberBandScrolling = false;
+    preset Enabled = false;
+  }
+
+  $rect <20,20,160,60>
+  object Core::VerticalList ISOList
+  {
+    preset Bounds = <627,0,800,450>;
+    preset Enabled;
+    preset Visible = false;
+    preset OnUpdate = SetISO;
+    preset OnLoadItem = OnLoadISOItem;
+    preset PaddingBottom = 175;
+    preset SlideHandler = ISOSlide;
+    preset ScrollOffset = 0;
+    preset PaddingTop = 175;
+    preset ItemHeight = 100;
+    preset NoOfItems = 6;
+  }
+
+  $rect <20,20,160,60>
+  object Core::SlideTouchHandler ISOSlide
+  {
+    preset Bounds = <627,-1,800,449>;
+    preset SnapNext = <0,100>;
+    preset RubberBandScrolling = false;
+    preset Enabled = false;
+  }
+
+  $rect <20,20,160,60>
+  object Core::VerticalList SSList
+  {
+    preset Bounds = <627,0,800,450>;
+    preset Enabled;
+    preset Visible = false;
+    preset OnUpdate = SetSS;
+    preset OnLoadItem = OnLoadSSItem;
+    preset PaddingBottom = 175;
+    preset SlideHandler = SSSlide;
+    preset ScrollOffset = 0;
+    preset PaddingTop = 175;
+    preset ItemHeight = 100;
+    preset NoOfItems = 8;
+  }
+
+  $rect <20,20,160,60>
+  object Core::SlideTouchHandler SSSlide
+  {
+    preset Bounds = <627,0,800,450>;
+    preset SnapNext = <0,100>;
+    preset RubberBandScrolling = false;
+    preset Enabled = false;
+  }
+
+  $rect <20,20,160,60>
+  object Core::VerticalList MCRList
+  {
+    preset Bounds = <627,0,800,450>;
+    preset Enabled;
+    preset Visible = false;
+    preset OnUpdate = SetMCR;
+    preset OnLoadItem = OnLoadMCRItem;
+    preset PaddingBottom = 175;
+    preset SlideHandler = MCRSlide;
+    preset PaddingTop = 175;
+    preset ItemHeight = 100;
+    preset NoOfItems = 5;
+  }
+
+  $rect <20,20,160,60>
+  object Core::SlideTouchHandler MCRSlide
+  {
+    preset Bounds = <627,0,800,450>;
+    preset SnapNext = <0,100>;
+    preset RubberBandScrolling = false;
+    preset Enabled = false;
+  }
+
+  $rect <900,369,1100,409>
+  property bool isAuto = true;
+
+  $rect <900,409,1100,449>
+  onset isAuto
+  {
+    // The value doesn't change - nothing to do.
+    if ( pure isAuto == value )
+      return;
+
+    // Remember the property's new value.
+    pure isAuto = value;
+
+    if(isAuto){
+      Rectangle1.Color = #009AFFFF;
+      Rectangle2.Color = #000000FF;
+
+      MCR.Visible = false;
+      ISO.Visible = false;
+      MS.Visible = false;
+      SS.Visible = false;
+      MWB.Visible = false;
+
+      ACR.Visible = true;
+      EV.Visible = true;
+      MM.Visible = true;
+      AS.Visible = true;
+      AWB.Visible = true;
+    }
+    else{
+      Rectangle1.Color = #000000FF;
+      Rectangle2.Color = #009AFFFF;
+
+      MCR.Visible = true;
+      ISO.Visible = true;
+      MS.Visible = true;
+      SS.Visible = true;
+      MWB.Visible = true;
+
+      ACR.Visible = false;
+      EV.Visible = false;
+      MM.Visible = false;
+      AS.Visible = false;
+      AWB.Visible = false;
+    }
+  }
+
+  $rect <900,260,1100,300>
+  property bool GridTemp;
+
+  $rect <900,300,1100,340>
+  onset GridTemp
+  {
+    // The value doesn't change - nothing to do.
+    if ( pure GridTemp == value )
+      return;
+
+    // Remember the property's new value.
+    pure GridTemp = value;
+
+    // TO DO:
+    // 
+    // Now you can handle the alternation of the property.
+  }
+
+  $rect <20,20,160,60>
+  object Views::Text Text
+  {
+    preset Bounds = <767,210,810,240>;
+    preset String = "<";
+    preset Font = Resources::FontExtraLarge;
+    preset Color = #77CCFFFF;
+    preset Visible = false;
   }
 
   $reorder next 1
@@ -2033,7 +2620,7 @@ class Parameter : Core::Group
   $reorder OnGetBuffered 1
 }
 
-$rect <318,151,518,191>
+$rect <269,149,469,189>
 $output false
 class AlbumView : Core::Group
 {
@@ -2094,7 +2681,7 @@ class AlbumView : Core::Group
   }
 }
 
-$rect <1118,151,1318,191>
+$rect <898,151,1098,191>
 $output false
 class VideoSpec : Core::Group
 {
@@ -2107,6 +2694,7 @@ class VideoSpec : Core::Group
     if(Owner != null)
       Owner.DismissDialog( this, Effects::SlideDownCentered, null, null, null, null, false );
     Application::Device.MainViewElement = true;
+    Application::Device.SpecUpdate--;
   }
 
   $rect <20,20,160,60>
@@ -2142,7 +2730,7 @@ class VideoSpec : Core::Group
 
   // This method is called by 'HorizontalList' every time the list loads or updates \
   // an item.
-  $rect <450,530,650,570>
+  $rect <450,490,650,530>
   slot OnLoadItem
   {
     // Get the number of the item to load. The list component takes care of the
@@ -2223,7 +2811,7 @@ class VideoSpec : Core::Group
 
   // This method is called by 'HorizontalList' every time the list loads or updates \
   // an item.
-  $rect <450,570,650,610>
+  $rect <450,530,650,570>
   slot OnLoadItem1
   {
     // Get the number of the item to load. The list component takes care of the
@@ -2274,7 +2862,7 @@ class VideoSpec : Core::Group
     preset Color = #565656FF;
   }
 
-  $rect <230,570,430,610>
+  $rect <230,530,430,570>
   slot SetFrameRate
   {
     var int32 centerPosition = 400;
@@ -2300,7 +2888,7 @@ class VideoSpec : Core::Group
     }
   }
 
-  $rect <230,530,430,570>
+  $rect <230,490,430,530>
   slot SetResolution
   {
     var int32 centerPosition = 400;
@@ -2358,8 +2946,9 @@ class VideoSpec : Core::Group
   {
     preset Bounds = <31,364,249,436>;
     preset OnPress = EnterHDRSetting;
+    preset Icon = Application::BtnCapsule1;
     preset Label = "HDR ON";
-    preset Appearance = Application::PushButtonConfig1;
+    preset Appearance = Application::PushButtonConfig;
   }
 
   $rect <20,20,160,60>
@@ -2367,8 +2956,9 @@ class VideoSpec : Core::Group
   {
     preset Bounds = <291,364,509,436>;
     preset OnPress = EnterRatioSetting;
+    preset Icon = Application::BtnCapsule1;
     preset Label = "16:9";
-    preset Appearance = Application::PushButtonConfig1;
+    preset Appearance = Application::PushButtonConfig;
   }
 
   $rect <20,20,160,60>
@@ -2376,8 +2966,9 @@ class VideoSpec : Core::Group
   {
     preset Bounds = <553,364,771,436>;
     preset OnPress = EnterTimeSetting;
+    preset Icon = Application::BtnCapsule1;
     preset Label = "무한";
-    preset Appearance = Application::PushButtonConfig1;
+    preset Appearance = Application::PushButtonConfig;
   }
 
   $rect <670,490,870,530>
@@ -2483,7 +3074,7 @@ class VideoSpec : Core::Group
   }
 }
 
-$rect <40,151,240,191>
+$rect <60,151,260,191>
 $output false
 class SwitchMode : Core::Group
 {
@@ -2616,6 +3207,24 @@ class SwitchMode : Core::Group
       TouchTimer.Enabled = false;
     TouchTimer.Enabled = true;
   }
+
+  $rect <460,480,660,520>
+  property bool GridTemp;
+
+  $rect <460,520,660,560>
+  onset GridTemp
+  {
+    // The value doesn't change - nothing to do.
+    if ( pure GridTemp == value )
+      return;
+
+    // Remember the property's new value.
+    pure GridTemp = value;
+
+    // TO DO:
+    // 
+    // Now you can handle the alternation of the property.
+  }
 }
 
 $rect <1509,320,1709,360>
@@ -2662,7 +3271,7 @@ resource Resources::Font MyFont1
   attr fontrowdistance RowDistance;
 }
 
-$rect <1509,680,1709,720>
+$rect <1509,720,1709,760>
 $output false
 resource Resources::Bitmap camera
 {
@@ -2674,7 +3283,7 @@ resource Resources::Bitmap camera
   attr bitmapmode Mode = Default;
 }
 
-$rect <1509,720,1709,760>
+$rect <1509,760,1709,800>
 $output false
 resource Resources::Bitmap camcorder
 {
@@ -2686,7 +3295,7 @@ resource Resources::Bitmap camcorder
   attr bitmapmode Mode = Default;
 }
 
-$rect <1509,760,1709,800>
+$rect <1509,800,1709,840>
 $output false
 resource Resources::Bitmap burst
 {
@@ -2698,7 +3307,7 @@ resource Resources::Bitmap burst
   attr bitmapmode Mode = Default;
 }
 
-$rect <1509,800,1709,840>
+$rect <1509,840,1709,880>
 $output false
 resource Resources::Bitmap timelapse
 {
@@ -2710,7 +3319,7 @@ resource Resources::Bitmap timelapse
   attr bitmapmode Mode = Default;
 }
 
-$rect <1509,840,1709,880>
+$rect <1509,880,1709,920>
 $output false
 resource Resources::Bitmap hyperlapse
 {
@@ -2722,7 +3331,7 @@ resource Resources::Bitmap hyperlapse
   attr bitmapmode Mode = Default;
 }
 
-$rect <1509,880,1709,920>
+$rect <1509,920,1709,960>
 $output false
 resource Resources::Bitmap slowmotion
 {
@@ -2736,11 +3345,11 @@ resource Resources::Bitmap slowmotion
 
 // Bitmap resource containing diverse icons you can use in your project. The icons \
 // have the size 36x36 pixel.
-$rect <1509,920,1709,960>
+$rect <1509,960,1709,1000>
 $output false
 resource Resources::Bitmap SymbolIconsMedium
 {
-  attr bitmapfile FileName = .\Res\ModeIcons2 (1).png;
+  attr bitmapfile FileName = .\Res\ModeIcon (2).png;
   attr framesize FrameSize = <36,36>;
   attr framedelay FrameDelay;
   attr bitmapformat Format = Alpha8;
@@ -2768,7 +3377,7 @@ $rect <1509,400,1709,440>
 $output false
 resource Resources::Bitmap BtnCapsule1
 {
-  attr bitmapfile FileName = .\Res\capsule_darkgray.png;
+  attr bitmapfile FileName = .\Res\capsulebtn_spec.png;
   attr bitmapformat Format = Native;
   attr framesize FrameSize;
   attr framedelay FrameDelay;
@@ -2776,7 +3385,7 @@ resource Resources::Bitmap BtnCapsule1
   attr bitmapmode Mode = Default;
 }
 
-$rect <1509,440,1709,480>
+$rect <1509,480,1709,520>
 $output false
 resource Resources::Bitmap rectbtn
 {
@@ -3528,17 +4137,17 @@ class DeviceClass : Templates::DeviceClass
   }
 
   $rect <459,1469,659,1509>
-  property int32 AutoPhotometricMode;
+  property int32 AutoMeteringMode;
 
   $rect <459,1509,659,1549>
-  onset AutoPhotometricMode
+  onset AutoMeteringMode
   {
     // The value doesn't change - nothing to do.
-    if ( pure AutoPhotometricMode == value )
+    if ( pure AutoMeteringMode == value )
       return;
 
     // Remember the property's new value.
-    pure AutoPhotometricMode = value;
+    pure AutoMeteringMode = value;
   }
 
   $rect <670,1469,870,1509>
@@ -3643,6 +4252,54 @@ class DeviceClass : Templates::DeviceClass
     pure ManualWhiteBalance = value;
   }
 
+  $rect <681,629,881,669>
+  property int32 SpecUpdate = 0;
+
+  $rect <681,669,881,709>
+  onset SpecUpdate
+  {
+    // The value doesn't change - nothing to do.
+    if ( pure SpecUpdate == value )
+      return;
+
+    // Remember the property's new value.
+    pure SpecUpdate = value;
+
+    notifyobservers ^SpecUpdate;
+  }
+
+  $rect <440,0,640,40>
+  property int32 Zoom = 0;
+
+  $rect <440,40,640,80>
+  onset Zoom
+  {
+    // The value doesn't change - nothing to do.
+    if ( pure Zoom == value )
+      return;
+
+    // Remember the property's new value.
+    pure Zoom = value;
+
+    notifyobservers ^Zoom;
+  }
+
+  $rect <649,0,849,40>
+  property int32 Angle = 0;
+
+  $rect <649,40,849,80>
+  onset Angle
+  {
+    // The value doesn't change - nothing to do.
+    if ( pure Angle == value )
+      return;
+
+    // Remember the property's new value.
+    pure Angle = value;
+
+    notifyobservers ^Angle;
+  }
+
   $reorder OnSetGrid 3
 }
 
@@ -3651,11 +4308,11 @@ autoobject Application::DeviceClass Device;
 
 // Bitmap resource containing diverse icons you can use in your project. The icons \
 // have the size 36x36 pixel.
-$rect <1509,960,1709,1000>
+$rect <1509,1000,1709,1040>
 $output false
 resource Resources::Bitmap SymbolIconsLarge
 {
-  attr bitmapfile FileName = .\Res\ModeIcons3.png;
+  attr bitmapfile FileName = .\Res\ModeIcon (1).png;
   attr framesize FrameSize = <72,72>;
   attr framedelay FrameDelay;
   attr bitmapformat Format = Alpha8;
@@ -3663,17 +4320,10 @@ resource Resources::Bitmap SymbolIconsLarge
   attr bitmapmode Mode = Default;
 }
 
-$rect <849,222,1049,262>
+$rect <689,222,889,262>
 $output false
 class Setting : Core::Group
 {
-  $rect <20,20,160,60>
-  object Core::WipeTouchHandler WipeTouchHandler
-  {
-    preset Bounds = <0,0,800,450>;
-    preset OnTop = EnterQuickMenu;
-  }
-
   $rect <0,520,200,560>
   inherited property Bounds = <0,0,800,450>;
 
@@ -3811,11 +4461,9 @@ class Setting : Core::Group
   {
     preset Bounds = <800,0,1600,450>;
   }
-
-  $reorder WipeTouchHandler 101
 }
 
-$rect <1509,520,1709,560>
+$rect <1509,560,1709,600>
 $output false
 resource Resources::Bitmap longbtn
 {
@@ -3827,7 +4475,7 @@ resource Resources::Bitmap longbtn
   attr bitmapmode Mode = Default;
 }
 
-$rect <1509,560,1709,600>
+$rect <1509,600,1709,640>
 $output false
 resource Resources::Bitmap BtnCapsule2
 {
@@ -3839,7 +4487,7 @@ resource Resources::Bitmap BtnCapsule2
   attr bitmapmode Mode = Default;
 }
 
-$rect <1118,420,1318,460>
+$rect <898,420,1098,460>
 $output false
 class HDRSetting : Core::Group
 {
@@ -3981,7 +4629,7 @@ class HDRSetting : Core::Group
   $reorder SetHDR 101
 }
 
-$rect <1118,460,1318,500>
+$rect <898,460,1098,500>
 $output false
 class RatioSetting : Core::Group
 {
@@ -4122,7 +4770,7 @@ class RatioSetting : Core::Group
   }
 }
 
-$rect <1118,500,1318,540>
+$rect <898,500,1098,540>
 $output false
 class TimeSetting : Core::Group
 {
@@ -4289,7 +4937,7 @@ autoobject WidgetSet::PushButtonConfig PushButtonConfig1
   preset FaceDefault = null;
 }
 
-$rect <1118,271,1318,311>
+$rect <898,271,1098,311>
 $output false
 class TLSpec : Core::Group
 {
@@ -4302,6 +4950,7 @@ class TLSpec : Core::Group
     if(Owner != null)
       Owner.DismissDialog( this, Effects::SlideDownCentered, null, null, null, null, false );
     Application::Device.MainViewElement = true;
+    Application::Device.SpecUpdate--;
   }
 
   $rect <20,20,160,60>
@@ -4467,8 +5116,9 @@ class TLSpec : Core::Group
   {
     preset Bounds = <161,364,379,436>;
     preset OnPress = EnterHDRSetting;
+    preset Icon = Application::BtnCapsule1;
     preset Label = "HDR ON";
-    preset Appearance = Application::PushButtonConfig1;
+    preset Appearance = Application::PushButtonConfig;
   }
 
   $rect <20,20,160,60>
@@ -4476,8 +5126,9 @@ class TLSpec : Core::Group
   {
     preset Bounds = <421,364,639,436>;
     preset OnPress = EnterRatioSetting;
+    preset Icon = Application::BtnCapsule1;
     preset Label = "16:9";
-    preset Appearance = Application::PushButtonConfig1;
+    preset Appearance = Application::PushButtonConfig;
   }
 
   $rect <670,490,870,530>
@@ -4642,7 +5293,7 @@ class TLSpec : Core::Group
   }
 }
 
-$rect <1118,191,1318,231>
+$rect <898,191,1098,231>
 $output false
 class HLSpec : Core::Group
 {
@@ -4655,6 +5306,7 @@ class HLSpec : Core::Group
     if(Owner != null)
       Owner.DismissDialog( this, Effects::SlideDownCentered, null, null, null, null, false );
     Application::Device.MainViewElement = true;
+    Application::Device.SpecUpdate++;
   }
 
   $rect <20,20,160,60>
@@ -4764,8 +5416,9 @@ class HLSpec : Core::Group
   {
     preset Bounds = <161,364,379,436>;
     preset OnPress = EnterHDRSetting;
+    preset Icon = Application::BtnCapsule1;
     preset Label = "HDR ON";
-    preset Appearance = Application::PushButtonConfig1;
+    preset Appearance = Application::PushButtonConfig;
   }
 
   $rect <20,20,160,60>
@@ -4773,8 +5426,9 @@ class HLSpec : Core::Group
   {
     preset Bounds = <421,364,639,436>;
     preset OnPress = EnterRatioSetting;
+    preset Icon = Application::BtnCapsule1;
     preset Label = "16:9";
-    preset Appearance = Application::PushButtonConfig1;
+    preset Appearance = Application::PushButtonConfig;
   }
 
   $rect <670,490,870,530>
@@ -4995,7 +5649,7 @@ class HLSpec : Core::Group
   }
 }
 
-$rect <1118,311,1318,351>
+$rect <898,311,1098,351>
 $output false
 class SMSpec : Core::Group
 {
@@ -5008,6 +5662,7 @@ class SMSpec : Core::Group
     if(Owner != null)
       Owner.DismissDialog( this, Effects::SlideDownCentered, null, null, null, null, false );
     Application::Device.MainViewElement = true;
+    Application::Device.SpecUpdate++;
   }
 
   $rect <20,20,160,60>
@@ -5259,8 +5914,9 @@ class SMSpec : Core::Group
   {
     preset Bounds = <31,364,249,436>;
     preset OnPress = EnterHDRSetting;
+    preset Icon = Application::BtnCapsule1;
     preset Label = "HDR ON";
-    preset Appearance = Application::PushButtonConfig1;
+    preset Appearance = Application::PushButtonConfig;
   }
 
   $rect <20,20,160,60>
@@ -5268,8 +5924,9 @@ class SMSpec : Core::Group
   {
     preset Bounds = <291,364,509,436>;
     preset OnPress = EnterRatioSetting;
+    preset Icon = Application::BtnCapsule1;
     preset Label = "16:9";
-    preset Appearance = Application::PushButtonConfig1;
+    preset Appearance = Application::PushButtonConfig;
   }
 
   $rect <20,20,160,60>
@@ -5277,8 +5934,9 @@ class SMSpec : Core::Group
   {
     preset Bounds = <553,364,771,436>;
     preset OnPress = EnterTimeSetting;
+    preset Icon = Application::BtnCapsule1;
     preset Label = "무한";
-    preset Appearance = Application::PushButtonConfig1;
+    preset Appearance = Application::PushButtonConfig;
   }
 
   $rect <670,490,870,530>
@@ -5384,7 +6042,7 @@ class SMSpec : Core::Group
   }
 }
 
-$rect <1118,231,1318,271>
+$rect <898,231,1098,271>
 $output false
 class BurstSpec : Core::Group
 {
@@ -5397,6 +6055,7 @@ class BurstSpec : Core::Group
     if(Owner != null)
       Owner.DismissDialog( this, Effects::SlideDownCentered, null, null, null, null, false );
     Application::Device.MainViewElement = true;
+    Application::Device.SpecUpdate--;
   }
 
   $rect <20,20,160,60>
@@ -5564,8 +6223,9 @@ class BurstSpec : Core::Group
   {
     preset Bounds = <161,364,379,436>;
     preset OnPress = EnterRateSetting;
+    preset Icon = Application::BtnCapsule1;
     preset Label = "3p/1s";
-    preset Appearance = Application::PushButtonConfig1;
+    preset Appearance = Application::PushButtonConfig;
   }
 
   $rect <20,20,160,60>
@@ -5573,14 +6233,15 @@ class BurstSpec : Core::Group
   {
     preset Bounds = <421,364,639,436>;
     preset OnPress = EnterRatioSetting;
+    preset Icon = Application::BtnCapsule1;
     preset Label = "16:9";
-    preset Appearance = Application::PushButtonConfig1;
+    preset Appearance = Application::PushButtonConfig;
   }
 
   $rect <669,489,869,529>
   slot EnterRateSetting
   {
-    PresentDialog( HDRSetting, Effects::SlideUpCentered, null, null, null, null, null, null, null, false );
+    PresentDialog( RateSetting, Effects::SlideUpCentered, null, null, null, null, null, null, null, false );
     RateSetting.HorizontalList.ScrollOffset = -160 * Application::Device.BurstRate;
   }
 
@@ -5620,7 +6281,7 @@ class BurstSpec : Core::Group
   slot EnterRatioSetting
   {
     PresentDialog( RatioSetting, Effects::SlideUpCentered, null, null, null, null, null, null, null, false );
-    RatioSetting.HorizontalList1.ScrollOffset = -160 * Application::Device.BurstRatio;
+    RatioSetting.HorizontalList.ScrollOffset = -160 * Application::Device.BurstRatio;
   }
 
   $rect <-220,449,-20,489>
@@ -5662,7 +6323,7 @@ class BurstSpec : Core::Group
   }
 }
 
-$rect <1118,351,1318,391>
+$rect <898,351,1098,391>
 $output false
 class PhotoSpec : Core::Group
 {
@@ -5675,6 +6336,7 @@ class PhotoSpec : Core::Group
     if(Owner != null)
       Owner.DismissDialog( this, Effects::SlideDownCentered, null, null, null, null, false );
     Application::Device.MainViewElement = true;
+    Application::Device.SpecUpdate++;
   }
 
   $rect <20,20,160,60>
@@ -5720,7 +6382,7 @@ class PhotoSpec : Core::Group
   {
     preset Bounds = <0,128,800,225>;
     preset Focus = null;
-    preset OnUpdate = SetResolution;
+    preset OnUpdate = SetTimer;
     preset OnLoadItem = OnLoadItem;
     preset PaddingRight = 330;
     preset SlideHandler = SlideTouchHandler;
@@ -5744,7 +6406,7 @@ class PhotoSpec : Core::Group
   {
     preset Bounds = <0,255,800,352>;
     preset Focus = null;
-    preset OnUpdate = SetTimer;
+    preset OnUpdate = SetResolution;
     preset OnLoadItem = OnLoadItem1;
     preset PaddingRight = 330;
     preset SlideHandler = SlideTouchHandler1;
@@ -5774,7 +6436,7 @@ class PhotoSpec : Core::Group
     preset Color = #565656FF;
   }
 
-  $rect <230,570,430,610>
+  $rect <230,490,430,530>
   slot SetTimer
   {
     var int32 centerPosition = 400;
@@ -5782,7 +6444,7 @@ class PhotoSpec : Core::Group
     var int32 i;
 
     for (i = 0; i < HorizontalList.NoOfItems; i++){
-      var Views::Text itemView = (Views::Text)HorizontalList1.GetViewForItem(i);
+      var Views::Text itemView = (Views::Text)HorizontalList.GetViewForItem(i);
 
       if (itemView != null){
           var int32 itemCenter = itemView.Bounds.x1 + (itemView.Bounds.w / 2);
@@ -5808,7 +6470,7 @@ class PhotoSpec : Core::Group
     var int32 i;
 
     for (i = 0; i < HorizontalList1.NoOfItems; i++){
-      var Views::Text itemView = (Views::Text)HorizontalList.GetViewForItem(i);
+      var Views::Text itemView = (Views::Text)HorizontalList1.GetViewForItem(i);
 
       // 아이템이 현재 화면에 보이는 경우에만
       if (itemView != null){
@@ -5858,8 +6520,9 @@ class PhotoSpec : Core::Group
   {
     preset Bounds = <291,364,509,436>;
     preset OnPress = EnterRatioSetting;
+    preset Icon = Application::BtnCapsule1;
     preset Label = "16:9";
-    preset Appearance = Application::PushButtonConfig1;
+    preset Appearance = Application::PushButtonConfig;
   }
 
   $rect <20,20,160,60>
@@ -5868,7 +6531,7 @@ class PhotoSpec : Core::Group
     preset Bounds = <0,450,800,900>;
   }
 
-  $rect <669,529,869,569>
+  $rect <670,489,870,529>
   slot EnterRatioSetting
   {
     PresentDialog( RatioSetting, Effects::SlideUpCentered, null, null, null, null, null, null, null, false );
@@ -5906,7 +6569,7 @@ class PhotoSpec : Core::Group
 
   // This method is called by 'HorizontalList' every time the list loads or updates \
   // an item.
-  $rect <440,530,640,570>
+  $rect <441,490,641,530>
   slot OnLoadItem
   {
     // Get the number of the item to load. The list component takes care of the
@@ -5940,7 +6603,7 @@ class PhotoSpec : Core::Group
 
   // This method is called by 'HorizontalList' every time the list loads or updates \
   // an item.
-  $rect <440,570,640,610>
+  $rect <441,530,641,570>
   slot OnLoadItem1
   {
     // Get the number of the item to load. The list component takes care of the
@@ -5966,11 +6629,11 @@ class PhotoSpec : Core::Group
 
     // Ensure that the item has correct size. The position of the item will be
     // managed by the list component.
-    itemView.Bounds.size = point( HorizontalList1.ItemWidth, HorizontalList.Bounds.h );
+    itemView.Bounds.size = point( HorizontalList1.ItemWidth, HorizontalList1.Bounds.h );
   }
 }
 
-$rect <1119,540,1319,580>
+$rect <899,540,1099,580>
 $output false
 class RateSetting : Core::Group
 {
@@ -6111,7 +6774,7 @@ class RateSetting : Core::Group
   }
 }
 
-$rect <1509,480,1709,520>
+$rect <1509,520,1709,560>
 $output false
 resource Resources::Bitmap rectbtnBlue
 {
@@ -6139,7 +6802,7 @@ resource Resources::Font MyFontBold
   attr fontrowdistance RowDistance;
 }
 
-$rect <849,371,1049,411>
+$rect <689,371,889,411>
 $output false
 class ConnectSetting : Core::Group
 {
@@ -6247,7 +6910,7 @@ class ConnectSetting : Core::Group
   $reorder WipeTouchHandler 101
 }
 
-$rect <849,262,1049,302>
+$rect <689,262,889,302>
 $output false
 class LockedScreen : Core::Group
 {
@@ -6344,7 +7007,7 @@ class LockedScreen : Core::Group
   }
 }
 
-$rect <1509,600,1709,640>
+$rect <1509,640,1709,680>
 $output false
 resource Resources::Bitmap LockImage
 {
@@ -6356,7 +7019,7 @@ resource Resources::Bitmap LockImage
   attr bitmapmode Mode = Default;
 }
 
-$rect <1509,640,1709,680>
+$rect <1509,680,1709,720>
 $output false
 resource Resources::Bitmap MiniLockImage
 {
@@ -6368,7 +7031,7 @@ resource Resources::Bitmap MiniLockImage
   attr bitmapmode Mode = Default;
 }
 
-$rect <849,331,1049,371>
+$rect <689,331,889,371>
 $output false
 class DisplaySetting : Core::Group
 {
@@ -6506,7 +7169,7 @@ class DisplaySetting : Core::Group
   $reorder WipeTouchHandler 101
 }
 
-$rect <849,451,1049,491>
+$rect <689,451,889,491>
 $output false
 class SystemSetting : Core::Group
 {
@@ -6661,21 +7324,20 @@ class SystemSetting : Core::Group
   slot AutoPowerOff
   {
     PresentDialog( SystemAutoPowerOff, null, null, null, null, null, null, null, null, false );
-    DisplayBrightness.HorizontalList.ScrollOffset = -100 * Application::Device.AutoPowerOff;
+    SystemAutoPowerOff.HorizontalList.ScrollOffset = -100 * Application::Device.AutoPowerOff;
   }
 
   $rect <490,560,690,600>
   slot Language
   {
-    PresentDialog( Language, null, null, null, null, null, null, null, null, false );
-    DisplayBrightness.HorizontalList.ScrollOffset = -100 * Application::Device.Language;
+    PresentDialog( SystemLanguage, null, null, null, null, null, null, null, null, false );
+    SystemLanguage.HorizontalList.ScrollOffset = -100 * Application::Device.Language;
   }
 
   $rect <490,600,690,640>
   slot Time
   {
     PresentDialog( SystemTime, null, null, null, null, null, null, null, null, false );
-    DisplayBrightness.HorizontalList.ScrollOffset = -50 * Application::Device.Month;
   }
 
   $rect <490,640,690,680>
@@ -6687,7 +7349,7 @@ class SystemSetting : Core::Group
   $reorder WipeTouchHandler 101
 }
 
-$rect <849,411,1049,451>
+$rect <689,411,889,451>
 $output false
 class RecordSetting : Core::Group
 {
@@ -6788,6 +7450,7 @@ class RecordSetting : Core::Group
   object WidgetSet::PushButton PushButton5
   {
     preset Bounds = <0,261,800,353>;
+    preset OnPress = Slot1;
     preset Icon = Application::longbtn;
     preset Label = "마이크 설정";
     preset Appearance = Application::PushButtonConfig1;
@@ -6797,6 +7460,7 @@ class RecordSetting : Core::Group
   object WidgetSet::PushButton PushButton6
   {
     preset Bounds = <0,348,800,440>;
+    preset OnPress = Slot2;
     preset Icon = Application::longbtn;
     preset Label = "외장 마이크 볼륨";
     preset Appearance = Application::PushButtonConfig1;
@@ -6819,10 +7483,34 @@ class RecordSetting : Core::Group
     preset Appearance = WidgetSet::Switch_Medium;
   }
 
+  $rect <20,20,160,60>
+  object Application::RecordMic RecordMic
+  {
+    preset Bounds = <800,0,1600,450>;
+  }
+
+  $rect <20,20,160,60>
+  object Application::RecordExternalMic RecordExternalMic
+  {
+    preset Bounds = <800,0,1600,450>;
+  }
+
+  $rect <491,520,691,560>
+  slot Slot1
+  {
+    PresentDialog( RecordMic, null, null, null, null, null, null, null, null, false );
+  }
+
+  $rect <490,560,690,600>
+  slot Slot2
+  {
+    PresentDialog( RecordExternalMic, null, null, null, null, null, null, null, null, false );
+  }
+
   $reorder WipeTouchHandler 101
 }
 
-$rect <849,520,1049,560>
+$rect <689,520,889,560>
 $output false
 class BtnToggleBtn : Core::Group
 {
@@ -6847,7 +7535,7 @@ class BtnToggleBtn : Core::Group
   }
 }
 
-$rect <849,589,1049,629>
+$rect <689,589,889,629>
 $output false
 class DisplayBrightness : Core::Group
 {
@@ -6984,7 +7672,7 @@ class DisplayBrightness : Core::Group
   }
 }
 
-$rect <849,860,1049,900>
+$rect <689,860,889,900>
 $output false
 class SystemAutoPowerOff : Core::Group
 {
@@ -7127,7 +7815,7 @@ class SystemAutoPowerOff : Core::Group
   }
 }
 
-$rect <849,900,1049,940>
+$rect <689,900,889,940>
 $output false
 class SystemLanguage : Core::Group
 {
@@ -7267,7 +7955,7 @@ class SystemLanguage : Core::Group
   }
 }
 
-$rect <849,940,1049,980>
+$rect <689,940,889,980>
 $output false
 class SystemTime : Core::Group
 {
@@ -7815,7 +8503,7 @@ class SystemTime : Core::Group
   }
 }
 
-$rect <849,980,1049,1020>
+$rect <689,980,889,1020>
 $output false
 class SystemReset : Core::Group
 {
@@ -7832,6 +8520,9 @@ class SystemReset : Core::Group
   $rect <240,520,440,560>
   slot quit
   {
+    Rectangle1.Visible = false;
+    Text1.Visible = false;
+    SimpleTouchHandler.Enabled = false;
     if(Owner != null)
       Owner.DismissDialog( this, null, null, null, null, null, false );
   }
@@ -7886,7 +8577,7 @@ class SystemReset : Core::Group
   {
     Rectangle1.Visible = true;
     Text1.Visible = true;
-    SimpleTouchHandler.Enable = true;
+    SimpleTouchHandler.Enabled = true;
   }
 
   $rect <20,20,160,60>
@@ -7901,7 +8592,7 @@ class SystemReset : Core::Group
   }
 }
 
-$rect <849,760,1049,800>
+$rect <689,760,889,800>
 $output false
 class RecordMic : Core::Group
 {
@@ -8050,7 +8741,7 @@ class RecordMic : Core::Group
   $reorder WipeTouchHandler 101
 }
 
-$rect <849,800,1049,840>
+$rect <689,800,889,840>
 $output false
 class RecordExternalMic : Core::Group
 {
@@ -8202,7 +8893,7 @@ class RecordExternalMic : Core::Group
   $reorder WipeTouchHandler 101
 }
 
-$rect <849,649,1049,689>
+$rect <689,649,889,689>
 $output false
 class ConnectDevice : Core::Group
 {
@@ -8239,6 +8930,7 @@ class ConnectDevice : Core::Group
     preset Point3 = <800,0>;
     preset Point2 = <800,450>;
     preset Point1 = <0,450>;
+    preset OnPress = quit;
   }
 
   $rect <20,20,160,60>
@@ -8250,7 +8942,7 @@ class ConnectDevice : Core::Group
   }
 }
 
-$rect <849,689,1049,729>
+$rect <689,689,889,729>
 $output false
 class ConnectLiveStreaming : Core::Group
 {
@@ -8289,4 +8981,350 @@ class ConnectLiveStreaming : Core::Group
     preset Point1 = <0,450>;
     preset OnPress = quit;
   }
+}
+
+$rect <1109,149,1309,189>
+$output false
+class Zoom : Core::Group
+{
+  $rect <0,490,200,530>
+  inherited property Bounds = <0,0,800,449>;
+
+  $rect <210,490,410,530>
+  slot EnterMainView
+  {
+    Owner.DismissDialog( this, Effects::SlideLeftCentered, null, null, null, null, false );
+    Application::Device.MainViewElement = true;
+    Application::Device.Grid = GridTemp;
+  }
+
+  // This method is called by 'VerticalList' every time the list loads or updates \
+  // an item.
+  $rect <440,490,640,530>
+  slot OnLoadZoomItem
+  {
+    // Get the number of the item to load. The list component takes care of the
+    // creation of the corresponding item view. Just access it ...
+    var int32       itemNo   = ZoomList.Item;
+    var Views::Text itemView = (Views::Text)ZoomList.View;
+
+    // The implementation of this slot method does not match the item class
+    // specified in the associated list component. Or the slot method is not
+    // called in context of the OnLoadItem list operation. 
+    if ( itemView == null )
+      return;
+    array string myitem[3];
+    myitem[0] = "x1";
+    myitem[1] = "x2";
+    myitem[2] = "x3";
+    // Configure the item view ...
+    itemView.String = myitem[itemNo];
+    itemView.Font   = Application::MyFont;
+    itemView.Color  = #FFFFFFFF;
+
+    // Ensure that the item has correct size. The position of the item will be
+    // managed by the list component.
+    itemView.Bounds.size = point( ZoomList.Bounds.w, ZoomList.ItemHeight );
+  }
+
+  $rect <440,530,640,570>
+  slot SetZoom
+  {
+    var int32 centerPosition = 225;
+
+    var int32 i;
+
+    for (i = 0; i < ZoomList.NoOfItems; i++){
+      var Views::Text itemView = (Views::Text)ZoomList.GetViewForItem(i);
+
+      // 아이템이 현재 화면에 보이는 경우에만
+      if (itemView != null){
+          // 아이템의 현재 위치 계산 (아이템의 왼쪽 상단 X좌표 + 아이템 너비 / 2)
+          var int32 itemCenter = itemView.Bounds.y1 + (itemView.Bounds.h / 2);
+
+          // 중앙 위치와 아이템 중심 위치의 차이 계산
+          var int32 distanceFromCenter = itemCenter - centerPosition;
+
+          // 중앙에 가까운 아이템은 색상을 하늘색으로, 나머지는 하얀색으로
+          if (distanceFromCenter >= -20 && distanceFromCenter <= 20){
+              itemView.Color = #77CCFFFF;  // 하늘색
+              Application::Device.Zoom = i;
+          }
+          else{
+              itemView.Color = #FFFFFFFF;  // 기본 하얀색
+          }
+      }
+    }
+  }
+
+  $rect <20,20,160,60>
+  object Core::VerticalList ZoomList
+  {
+    preset Bounds = <0,0,173,449>;
+    preset Enabled;
+    preset Visible = true;
+    preset OnUpdate = SetZoom;
+    preset OnLoadItem = OnLoadZoomItem;
+    preset PaddingBottom = 175;
+    preset SlideHandler = ZoomSlide;
+    preset ScrollOffset = 0;
+    preset PaddingTop = 175;
+    preset ItemHeight = 100;
+    preset NoOfItems = 3;
+  }
+
+  $rect <20,20,160,60>
+  object Core::SlideTouchHandler ZoomSlide
+  {
+    preset Bounds = <0,0,173,450>;
+    preset SnapNext = <0,100>;
+    preset Enabled = true;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Text Text
+  {
+    preset Bounds = <0,210,43,240>;
+    preset String = ">";
+    preset Font = Resources::FontExtraLarge;
+    preset Color = #77CCFFFF;
+  }
+
+  $rect <690,490,890,530>
+  property bool GridTemp;
+
+  $rect <690,530,890,570>
+  onset GridTemp
+  {
+    // The value doesn't change - nothing to do.
+    if ( pure GridTemp == value )
+      return;
+
+    // Remember the property's new value.
+    pure GridTemp = value;
+
+    // TO DO:
+    // 
+    // Now you can handle the alternation of the property.
+  }
+
+  $rect <20,20,160,60>
+  object Core::SimpleTouchHandler SimpleTouchHandler
+  {
+    preset Point4 = <173,-1>;
+    preset Point3 = <800,-1>;
+    preset Point2 = <800,449>;
+    preset Point1 = <173,449>;
+    preset OnPress = EnterMainView;
+    preset Enabled = true;
+  }
+
+  $reorder next 1
+  $reorder prev 1
+  $reorder Owner 1
+  $reorder viewShape 1
+  $reorder viewState 1
+  $reorder layoutContext 1
+  $reorder initLayoutContext 1
+  $reorder OnSetStackingPriority 1
+  $reorder OnSetLayout 1
+  $reorder GetRoot 1
+  $reorder Draw 1
+  $reorder HandleEvent 1
+  $reorder CursorHitTest 1
+  $reorder ArrangeView 1
+  $reorder MoveView 1
+  $reorder GetExtent 1
+  $reorder ChangeViewState 1
+  $reorder StackingPriority 1
+  $reorder Layout 1
+  $reorder OnSetBounds 1
+  $reorder Bounds 1
+  $reorder first 1
+  $reorder last 1
+  $reorder keyHandlers 1
+  $reorder buffer 1
+  $reorder dialogStack 1
+  $reorder fadersQueue 1
+  $reorder pendingFader 1
+  $reorder processKeyHandlers 1
+  $reorder updateBufferSlot 1
+  $reorder drawContent 1
+  $reorder recalculateLayout 1
+  $reorder updateComponent 1
+  $reorder OnSetFocus 1
+  $reorder OnGetBuffered 1
+}
+
+$rect <1109,189,1309,229>
+$output false
+class Angle : Core::Group
+{
+  $rect <0,490,200,530>
+  inherited property Bounds = <0,0,800,449>;
+
+  $rect <210,490,410,530>
+  slot EnterMainView
+  {
+    Owner.DismissDialog( this, Effects::SlideRightCentered, null, null, null, null, false );
+    Application::Device.MainViewElement = true;
+    Application::Device.Grid = GridTemp;
+  }
+
+  // This method is called by 'VerticalList' every time the list loads or updates \
+  // an item.
+  $rect <440,490,640,530>
+  slot OnLoadAngleItem
+  {
+    // Get the number of the item to load. The list component takes care of the
+    // creation of the corresponding item view. Just access it ...
+    var int32       itemNo   = AngleList.Item;
+    var Views::Text itemView = (Views::Text)AngleList.View;
+
+    // The implementation of this slot method does not match the item class
+    // specified in the associated list component. Or the slot method is not
+    // called in context of the OnLoadItem list operation. 
+    if ( itemView == null )
+      return;
+    array string myitem[3];
+    myitem[0] = "표준";
+    myitem[1] = "광각";
+    myitem[2] = "초광각";
+    // Configure the item view ...
+    itemView.String = myitem[itemNo];
+    itemView.Font   = Application::MyFont;
+    itemView.Color  = #FFFFFFFF;
+
+    // Ensure that the item has correct size. The position of the item will be
+    // managed by the list component.
+    itemView.Bounds.size = point( AngleList.Bounds.w, AngleList.ItemHeight );
+  }
+
+  $rect <440,530,640,570>
+  slot SetAngle
+  {
+    var int32 centerPosition = 225;
+
+    var int32 i;
+
+    for (i = 0; i < AngleList.NoOfItems; i++){
+      var Views::Text itemView = (Views::Text)AngleList.GetViewForItem(i);
+
+      // 아이템이 현재 화면에 보이는 경우에만
+      if (itemView != null){
+          // 아이템의 현재 위치 계산 (아이템의 왼쪽 상단 X좌표 + 아이템 너비 / 2)
+          var int32 itemCenter = itemView.Bounds.y1 + (itemView.Bounds.h / 2);
+
+          // 중앙 위치와 아이템 중심 위치의 차이 계산
+          var int32 distanceFromCenter = itemCenter - centerPosition;
+
+          // 중앙에 가까운 아이템은 색상을 하늘색으로, 나머지는 하얀색으로
+          if (distanceFromCenter >= -20 && distanceFromCenter <= 20){
+              itemView.Color = #77CCFFFF;  // 하늘색
+              Application::Device.Angle = i;
+          }
+          else{
+              itemView.Color = #FFFFFFFF;  // 기본 하얀색
+          }
+      }
+    }
+  }
+
+  $rect <20,20,160,60>
+  object Core::VerticalList AngleList
+  {
+    preset Bounds = <627,0,800,450>;
+    preset Enabled;
+    preset Visible = true;
+    preset OnUpdate = SetAngle;
+    preset OnLoadItem = OnLoadAngleItem;
+    preset PaddingBottom = 175;
+    preset SlideHandler = AngleSlide;
+    preset ScrollOffset = 0;
+    preset PaddingTop = 175;
+    preset ItemHeight = 100;
+    preset NoOfItems = 3;
+  }
+
+  $rect <20,20,160,60>
+  object Core::SlideTouchHandler AngleSlide
+  {
+    preset Bounds = <627,0,800,450>;
+    preset SnapNext = <0,100>;
+    preset Enabled = true;
+  }
+
+  $rect <20,20,160,60>
+  object Views::Text Text
+  {
+    preset Bounds = <757,210,800,240>;
+    preset String = "<";
+    preset Font = Resources::FontExtraLarge;
+    preset Color = #77CCFFFF;
+  }
+
+  $rect <690,490,890,530>
+  property bool GridTemp;
+
+  $rect <690,530,890,570>
+  onset GridTemp
+  {
+    // The value doesn't change - nothing to do.
+    if ( pure GridTemp == value )
+      return;
+
+    // Remember the property's new value.
+    pure GridTemp = value;
+
+    // TO DO:
+    // 
+    // Now you can handle the alternation of the property.
+  }
+
+  $rect <20,20,160,60>
+  object Core::SimpleTouchHandler SimpleTouchHandler
+  {
+    preset Point4 = <0,-2>;
+    preset Point3 = <627,-2>;
+    preset Point2 = <627,448>;
+    preset Point1 = <0,448>;
+    preset OnPress = EnterMainView;
+    preset Enabled = true;
+  }
+
+  $reorder next 1
+  $reorder prev 1
+  $reorder Owner 1
+  $reorder viewShape 1
+  $reorder viewState 1
+  $reorder layoutContext 1
+  $reorder initLayoutContext 1
+  $reorder OnSetStackingPriority 1
+  $reorder OnSetLayout 1
+  $reorder GetRoot 1
+  $reorder Draw 1
+  $reorder HandleEvent 1
+  $reorder CursorHitTest 1
+  $reorder ArrangeView 1
+  $reorder MoveView 1
+  $reorder GetExtent 1
+  $reorder ChangeViewState 1
+  $reorder StackingPriority 1
+  $reorder Layout 1
+  $reorder OnSetBounds 1
+  $reorder Bounds 1
+  $reorder first 1
+  $reorder last 1
+  $reorder keyHandlers 1
+  $reorder buffer 1
+  $reorder dialogStack 1
+  $reorder fadersQueue 1
+  $reorder pendingFader 1
+  $reorder processKeyHandlers 1
+  $reorder updateBufferSlot 1
+  $reorder drawContent 1
+  $reorder recalculateLayout 1
+  $reorder updateComponent 1
+  $reorder OnSetFocus 1
+  $reorder OnGetBuffered 1
 }
