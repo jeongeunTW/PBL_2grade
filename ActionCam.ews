@@ -1,12 +1,12 @@
 $version 1.0
 
-attr active = Application::ConnectSetting;
+attr active = Application::Setting;
 attr callStackMonitor_Show = false;
 attr codeColSelect = false;
 attr codeFirstPos = <0,0>;
-attr codeInspector = Application::ConnectSetting.Slot1;
-attr codeSelEnd = <28,0>;
-attr codeSelStart = <28,0>;
+attr codeInspector = Application::MainView.VisibleFalse;
+attr codeSelEnd = <0,8>;
+attr codeSelStart = <0,8>;
 attr connectInspectors = false;
 attr debug_TrackUpdates = false;
 attr extractDoc_ClassOverview = true;
@@ -74,56 +74,22 @@ view class Application::MainView
   attr zoom = 0.75;
 }
 
-view class Application::Zoom
+view class Application::QuickMenu
 {
-  attr codeColSelect = false;
-  attr codeFirstPos = <0,0>;
-  attr codeInspector = EnterMainView;
-  attr codeSelEnd = <6,0>;
-  attr codeSelStart = <6,0>;
   attr enableWireMode = false;
-  attr scrollTo = <-267,-109>;
+  attr scrollTo = <-7,-7>;
   attr zoom = 1.0;
 }
 
-view class Application::Parameter
-{
-  attr codeColSelect = false;
-  attr codeFirstPos = <0,0>;
-  attr codeInspector = SetManual;
-  attr codeSelEnd = <0,0>;
-  attr codeSelStart = <0,0>;
-  attr enableWireMode = false;
-  attr scrollTo = <-7,-31>;
-  attr zoom = 1.0;
-}
-
-view class Application::Angle
-{
-  attr codeColSelect = false;
-  attr codeFirstPos = <0,0>;
-  attr codeInspector = OnLoadAngleItem;
-  attr codeSelEnd = <16,13>;
-  attr codeSelStart = <16,13>;
-  attr enableWireMode = false;
-  attr scrollTo = <-7,-103>;
-  attr zoom = 1.0;
-}
-
-view class Application::SwitchMode
+view class Application::Setting
 {
   attr enableWireMode = false;
   attr scrollTo = <-7,41>;
   attr zoom = 1.0;
 }
 
-view class Application::ConnectSetting
+view class Application::SystemSetting
 {
-  attr codeColSelect = false;
-  attr codeFirstPos = <0,0>;
-  attr codeInspector = Slot1;
-  attr codeSelEnd = <28,0>;
-  attr codeSelStart = <28,0>;
   attr enableWireMode = false;
   attr scrollTo = <-7,-7>;
   attr zoom = 1.0;
